@@ -3,7 +3,7 @@ export async function login(dto: { email: string; password: string }) {
   return { ok: true }
 }
 
-export async function register(dto: { email: string; password: string }) {
+export async function registerUser(dto: { email: string; password: string }) {
   console.log('register dto', dto)
   return { ok: true }
 }

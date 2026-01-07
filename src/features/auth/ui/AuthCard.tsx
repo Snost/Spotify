@@ -5,7 +5,7 @@ import { useMutation } from '@tanstack/react-query'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useForm } from 'react-hook-form'
 
-import { login, register as registerUser } from '@/features/auth/api'
+import { login, registerUser } from '@/features/auth/api'
 
 import { loginSchema, registerSchema } from '@/features/auth/validation'
 
@@ -41,7 +41,7 @@ export default function AuthCard() {
   })
 
   const registerMutation = useMutation({
-    mutationFn: (dto: { email: string; password: string }) => registerUser(dto),
+  mutationFn: (dto: { email: string; password: string }) => registerUser(dto),
 
     onSuccess: () => {
       setError(null)
