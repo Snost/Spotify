@@ -2,12 +2,15 @@
 
 import * as React from 'react'
 import { useMutation } from '@tanstack/react-query'
-import { yupResolver } from '@hookform/resolvers/yup'
+import { zodResolver } from '@hookform/resolvers/zod'
+
 import { useForm } from 'react-hook-form'
 
 import { login, registerUser } from '@/features/auth/api'
 
-import { loginSchema, registerSchema } from '@/features/auth/validation'
+import { loginSchema, registerSchema, type LoginForm, type RegisterForm } from '@/features/auth/validation'
+
+
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -16,21 +19,20 @@ import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 
-type LoginForm = { email: string; password: string }
-type RegisterForm = { email: string; password: string; confirmPassword: string }
 
 export default function AuthCard() {
   const [error, setError] = React.useState<string | null>(null)
 
-  const loginForm = useForm<LoginForm>({
-    resolver: yupResolver(loginSchema),
-    defaultValues: { email: '', password: '' },
-  })
+ const loginForm = useForm<LoginForm>({
+  resolver: zodResolver(loginSchema),
+  defaultValues: { email: '', password: '' },
+})
 
-  const registerForm = useForm<RegisterForm>({
-    resolver: yupResolver(registerSchema),
-    defaultValues: { email: '', password: '', confirmPassword: '' },
-  })
+const registerForm = useForm<RegisterForm>({
+  resolver: zodResolver(registerSchema),
+  defaultValues: { email: '', password: '', confirmPassword: '' },
+})
+
 
   const loginMutation = useMutation({
     mutationFn: login,

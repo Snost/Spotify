@@ -1,5 +1,9 @@
-import { AuthForm } from '@/features/auth/ui/auth-form'
+import AuthCard from '@/features/auth/ui/AuthCard'
 
 export default function AuthPage() {
-  return <AuthForm />
+  return (
+    <main className="flex min-h-screen items-center justify-center p-6">
+      <AuthCard />
+    </main>
+  )
 }
