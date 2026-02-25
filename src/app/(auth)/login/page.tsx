@@ -69,9 +69,11 @@ export default function LoginStartPage() {
 
           {/* buttons block */}
           <div className="space-y-5">
-            <AuthOptionButton icon={<MailIcon />} variant="filled">
-              Продовжити за допомогою <br/> електронної пошти
-            </AuthOptionButton>
+         <Link href="/login/email">
+  <AuthOptionButton icon={<MailIcon />} variant="filled">
+    Продовжити за допомогою <br /> електронної пошти
+  </AuthOptionButton>
+</Link>
 
             <AuthOptionButton icon={<GoogleIcon />}>
               Продовжити за допомогою Google

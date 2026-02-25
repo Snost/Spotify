@@ -1,23 +1,38 @@
 import React from "react";
 import { cn } from "@/shared/lib/cn";
 
-type Props = React.InputHTMLAttributes<HTMLInputElement>;
+type Props = React.InputHTMLAttributes<HTMLInputElement> & {
+  error?: string;
+};
 
-export const Input = React.forwardRef<HTMLInputElement, Props>(function Input(
-  { className, ...props },
-  ref
-) {
-  return (
-    <input
-      ref={ref}
-      className={cn(
-        "h-11 w-full rounded-xl px-4 text-sm bg-[rgb(var(--surface))] text-[rgb(var(--text))] " +
-          "border border-[rgb(var(--border))] placeholder:text-[rgb(var(--muted))] " +
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--ring))] " +
-          "disabled:opacity-50",
-        className
-      )}
-      {...props}
-    />
-  );
-});
+export const Input = React.forwardRef<HTMLInputElement, Props>(
+  ({ className, error, ...props }, ref) => {
+    return (
+      <div className="w-[370px]">
+        <input
+          ref={ref}
+          className={cn(
+            // Figma размеровка
+            "h-[60px] w-[370px] rounded-[15px]",
+            // padding 5 (в фігмі)
+            "px-[5px] py-[5px]",
+            // colors
+            "bg-[#1B263B] text-[#F0EEE9]",
+            "border border-[#778DA9]",
+            // behavior
+            "outline-none",
+            "transition-colors duration-[300ms] ease-[cubic-bezier(0.25,0.1,0.25,1)]",
+            // focus: зробимо трошки світліше, але в межах палітри
+            "focus:border-[#F0EEE9]",
+            error ? "border-red-400" : "",
+            className
+          )}
+          {...props}
+        />
+        {error ? <p className="mt-2 text-sm text-red-300">{error}</p> : null}
+      </div>
+    );
+  }
+);
+
+Input.displayName = "Input";
