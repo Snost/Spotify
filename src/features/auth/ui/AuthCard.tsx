@@ -30,7 +30,14 @@ export default function AuthCard() {
 
 const registerForm = useForm<RegisterForm>({
   resolver: zodResolver(registerSchema),
-  defaultValues: { email: '', password: '', confirmPassword: '' },
+ defaultValues: {
+  email: '',
+  password: '',
+  confirmPassword: '',
+  displayName: '',
+  birthDate: '',
+  gender: 'Female',
+},
 })
 
 
@@ -43,13 +50,10 @@ const registerForm = useForm<RegisterForm>({
   })
 
   const registerMutation = useMutation({
-  mutationFn: (dto: { email: string; password: string }) => registerUser(dto),
-
-    onSuccess: () => {
-      setError(null)
-    },
-    onError: (e: Error) => setError(e.message),
-  })
+  mutationFn: registerUser,
+  onSuccess: () => setError(null),
+  onError: (e: Error) => setError(e.message),
+})
 
   return (
     <Card className="w-full max-w-md border-neutral-800 bg-neutral-950">
@@ -103,7 +107,7 @@ const registerForm = useForm<RegisterForm>({
             <form
               className="space-y-3"
               onSubmit={registerForm.handleSubmit((values) =>
-                registerMutation.mutate({ email: values.email, password: values.password })
+                registerMutation.mutate(values)
               )}
             >
               <Field

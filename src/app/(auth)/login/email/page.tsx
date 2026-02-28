@@ -1,11 +1,13 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Input } from "@/shared/ui/input";
-import { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
+
+import { Input } from "@/shared/ui/input";
+import { useAuthStore } from "@/shared/stores/auth.store";
 
 function BackIcon() {
   return (
@@ -28,14 +30,13 @@ type FormValues = {
 
 export default function LoginEmailPage() {
   const router = useRouter();
+  const login = useAuthStore((s) => s.login);
+  const [serverError, setServerError] = useState<string | null>(null);
 
   const schema = useMemo(
     () =>
       yup.object({
-        login: yup
-          .string()
-          .trim()
-          .required("Введи email або ім’я користувача"),
+        login: yup.string().trim().required("Введи email або ім’я користувача"),
         password: yup
           .string()
           .required("Введи пароль")
@@ -50,26 +51,34 @@ export default function LoginEmailPage() {
     formState: { errors, isValid, isSubmitting },
   } = useForm<FormValues>({
     resolver: yupResolver(schema),
-    mode: "onChange", // щоб isValid оновлювався одразу
+    mode: "onChange",
     defaultValues: { login: "", password: "" },
   });
 
   const onSubmit = async (data: FormValues) => {
-    // поки без бекенду — просто показуємо що працює
-    console.log("LOGIN SUBMIT", data);
+    setServerError(null);
 
-    // тимчасово можна зробити фейковий перехід:
-    // router.push("/home");
+    try {
+      const email = data.login.trim();
+      console.log("TRY LOGIN", { email });
+
+      await login({ email, password: data.password });
+
+      // ✅ тепер токен уже має бути в сторі
+      console.log("TOKEN AFTER LOGIN", useAuthStore.getState().accessToken);
+
+      router.replace("/home");
+    } catch (e: any) {
+      setServerError(e?.message ?? "Не вдалося увійти. Спробуй ще раз.");
+    }
   };
 
   return (
     <div className="min-h-dvh bg-[#0D1B2A]">
       <div className="mx-auto min-h-dvh w-full max-w-[402px] px-4">
         <div className="flex min-h-dvh flex-col">
-          {/* Status bar */}
           <div className="h-[50px]" />
 
-          {/* Top bar */}
           <div className="flex items-center gap-3">
             <button
               type="button"
@@ -85,14 +94,17 @@ export default function LoginEmailPage() {
             </div>
           </div>
 
-          {/* FORM */}
+          {serverError ? (
+            <div className="mt-3 w-[370px] text-center text-[12px] font-semibold text-red-300">
+              {serverError}
+            </div>
+          ) : null}
+
           <form className="mt-[46px]" onSubmit={handleSubmit(onSubmit)}>
-            {/* Label 1 */}
             <div className="h-[48px] w-[370px] text-[20px] leading-[20px] font-semibold text-[#F0EEE9]">
               Адреса електронної пошти або ім’я користувача
             </div>
 
-            {/* Input 1 */}
             <div className="mt-[10px]">
               <Input
                 {...register("login")}
@@ -103,12 +115,10 @@ export default function LoginEmailPage() {
 
             <div className="h-[24px]" />
 
-            {/* Label 2 */}
             <div className="h-[24px] w-[370px] text-[20px] leading-[20px] font-semibold text-[#F0EEE9]">
               Пароль
             </div>
 
-            {/* Input 2 */}
             <div className="mt-[10px]">
               <Input
                 type="password"
@@ -120,7 +130,6 @@ export default function LoginEmailPage() {
 
             <div className="h-[60px]" />
 
-            {/* Button */}
             <button
               type="submit"
               disabled={!isValid || isSubmitting}

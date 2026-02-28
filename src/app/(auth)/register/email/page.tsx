@@ -1,5 +1,6 @@
 "use client";
-
+import { useState } from "react";
+import { useAuthStore } from "@/shared/stores/auth.store";
 import { useRouter } from "next/navigation";
 import { Input } from "@/shared/ui/input";
 import { useMemo } from "react";
@@ -30,7 +31,8 @@ type FormValues = {
 
 export default function RegisterEmailPage() {
   const router = useRouter();
-
+const registerUser = useAuthStore((s) => s.register);
+const [serverError, setServerError] = useState<string | null>(null);
   const schema = useMemo(
     () =>
       yup.object({
@@ -68,10 +70,20 @@ export default function RegisterEmailPage() {
   });
 
   const onSubmit = async (data: FormValues) => {
-    console.log("REGISTER SUBMIT", data);
-    // пізніше: виклик /auth/register
-    // router.push("/login");
-  };
+  setServerError(null);
+
+  try {
+    await registerUser({
+      email: data.email.trim(),
+      password: data.password,
+      displayName: data.name.trim(),
+    });
+
+    router.replace("/home");
+  } catch (e: any) {
+    setServerError(e?.message ?? "Не вдалося зареєструватися. Спробуй ще раз.");
+  }
+};
 
   return (
     <div className="min-h-dvh bg-[#0D1B2A]">
@@ -173,7 +185,11 @@ export default function RegisterEmailPage() {
             >
               {isSubmitting ? "Зачекай..." : "Зареєструватися"}
             </button>
-
+{serverError ? (
+  <div className="mt-3 w-[370px] text-center text-[12px] font-semibold text-red-300">
+    {serverError}
+  </div>
+) : null}
             {/* Legal text 370x24 */}
       <div className="mt-[10px] w-[370px]">
   <p className="m-0 text-center text-[10px] leading-[12px] font-semibold text-[#F0EEE980]">

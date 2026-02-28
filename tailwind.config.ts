@@ -50,7 +50,14 @@ const config: Config = {
   				'3': 'hsl(var(--chart-3))',
   				'4': 'hsl(var(--chart-4))',
   				'5': 'hsl(var(--chart-5))'
-  			}
+  			},
+			groov: {
+    bg: '#0d1b2a',
+    primary: '#1b263b',
+    blue1: '#415a77',
+    blue2: '#778da9',
+    accent: '#F0EEE9',
+  },
   		}
   	}
   },

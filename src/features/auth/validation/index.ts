@@ -10,6 +10,10 @@ export const registerSchema = z
     email: z.string().email('Некоректний email'),
     password: z.string().min(6, 'Мінімум 6 символів'),
     confirmPassword: z.string().min(6, 'Мінімум 6 символів'),
+
+    displayName: z.string().min(2, 'Мінімум 2 символи'),
+    birthDate: z.string().min(1, 'Вкажи дату народження'),
+    gender: z.enum(['Female', 'Male', 'Other']),
   })
   .refine((data) => data.password === data.confirmPassword, {
     path: ['confirmPassword'],

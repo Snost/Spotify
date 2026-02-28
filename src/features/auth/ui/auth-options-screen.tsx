@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { AuthLinkButton } from "@/shared/ui/auth-link-button";
 import { AuthOptionButton } from "@/features/auth/ui/auth-option-button";
 
 type Props = {
@@ -94,12 +95,7 @@ export function AuthOptionsScreen({
             </div>
 
             <div className="mt-[16px]">
-              <Link
-                href={bottomHref}
-                className="block h-[40px] w-[370px] text-center text-[16px] font-semibold leading-[40px] text-[rgb(var(--accent))]"
-              >
-                {bottomText}
-              </Link>
+             <AuthLinkButton href={bottomHref}>{bottomText}</AuthLinkButton>
             </div>
           </div>
 
