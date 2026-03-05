@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import Hls from 'hls.js'
 
 type UseHlsAudioArgs = {
   url: string | null
@@ -12,22 +11,25 @@ type UseHlsAudioArgs = {
 
 export function useHlsAudio({ url, shouldPlay, volume, onShouldPlayChange }: UseHlsAudioArgs) {
   const audioRef = useRef<HTMLAudioElement | null>(null)
-  const hlsRef = useRef<Hls | null>(null)
+  const hlsRef = useRef<any>(null)
 
   const [duration, setDuration] = useState(0)
   const [currentTime, setCurrentTime] = useState(0)
   const [bufferedPct, setBufferedPct] = useState(0)
   const [error, setError] = useState<string | null>(null)
 
-  // підключення URL (тільки коли url змінюється)
   useEffect(() => {
     const audio = audioRef.current
     if (!audio) return
 
+    let disposed = false
     setError(null)
 
+    // cleanup previous
     if (hlsRef.current) {
-      hlsRef.current.destroy()
+      try {
+        hlsRef.current.destroy()
+      } catch {}
       hlsRef.current = null
     }
 
@@ -37,39 +39,52 @@ export function useHlsAudio({ url, shouldPlay, volume, onShouldPlayChange }: Use
 
     if (!url) return
 
-    if (audio.canPlayType('application/vnd.apple.mpegurl')) {
-      audio.src = url
-    } else if (Hls.isSupported()) {
-      const hls = new Hls()
-      hlsRef.current = hls
+    const run = async () => {
+      // Apple native HLS
+      if (audio.canPlayType('application/vnd.apple.mpegurl')) {
+        audio.src = url
+        return
+      }
 
-      hls.on(Hls.Events.ERROR, (_evt, data) => {
-        // дуже базово: показуємо помилку
-        setError(`${data.type}: ${data.details}`)
-      })
+      // ✅ dynamic import hls.js
+      const mod = await import('hls.js')
+      if (disposed) return
+      const Hls = mod.default
 
-      hls.loadSource(url)
-      hls.attachMedia(audio)
-    } else {
-      audio.src = url
+      if (Hls.isSupported()) {
+        const hls = new Hls()
+        hlsRef.current = hls
+
+        hls.on(Hls.Events.ERROR, (_evt: any, data: any) => {
+          setError(`${data.type}: ${data.details}`)
+        })
+
+        hls.loadSource(url)
+        hls.attachMedia(audio)
+      } else {
+        audio.src = url
+      }
     }
 
+    run()
+
     return () => {
+      disposed = true
       if (hlsRef.current) {
-        hlsRef.current.destroy()
+        try {
+          hlsRef.current.destroy()
+        } catch {}
         hlsRef.current = null
       }
     }
   }, [url])
 
-  // volume окремо (щоб не перезбирати HLS)
   useEffect(() => {
     const audio = audioRef.current
     if (!audio) return
     audio.volume = volume / 100
   }, [volume])
 
-  // play/pause синхронізація
   useEffect(() => {
     const audio = audioRef.current
     if (!audio) return
@@ -92,7 +107,6 @@ export function useHlsAudio({ url, shouldPlay, volume, onShouldPlayChange }: Use
     run()
   }, [shouldPlay, url, onShouldPlayChange])
 
-  // events
   const onLoadedMetadata = () => {
     const audio = audioRef.current
     if (!audio) return

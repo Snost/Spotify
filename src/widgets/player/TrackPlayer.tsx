@@ -1,7 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState } from 'react'
-import Hls from 'hls.js'
+import { useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
 import { useDashAudio } from './useDashAudio'
@@ -9,15 +8,7 @@ import { useDashAudio } from './useDashAudio'
 const TEST_HLS =
   'https://cdn.bitmovin.com/content/assets/art-of-motion-dash-hls-progressive/m3u8s/f08e80da-bf1d-4e3d-8899-f0f6155f6efa-audio-only.m3u8'
 
-// якщо маєш тестовий MPD — встав сюди (або з бекенду буде DASH mpd)
-const TEST_DASH =
-  'https://dash.akamaized.net/akamai/bbb_30fps/bbb_30fps.mpd'
-
-function isAppleDevice() {
-  if (typeof navigator === 'undefined') return false
-  const ua = navigator.userAgent.toLowerCase()
-  return /iphone|ipad|ipod|macintosh/.test(ua)
-}
+const TEST_DASH = 'https://dash.akamaized.net/akamai/bbb_30fps/bbb_30fps.mpd'
 
 export function TrackPlayer({
   hlsUrl = TEST_HLS,
@@ -33,39 +24,66 @@ export function TrackPlayer({
   const [duration, setDuration] = useState(0)
   const [volume, setVolume] = useState(80)
 
-  const shouldUseHls = useMemo(() => {
-    // Apple/Safari: немає MediaSource на iOS Safari, тому HLS тільки нативно (без hls.js) :contentReference[oaicite:1]{index=1}
-    return isAppleDevice()
+  // ✅ визначаємо Apple тільки в браузері (useEffect)
+  const [shouldUseHls, setShouldUseHls] = useState(false)
+  const [isClient, setIsClient] = useState(false)
+
+  useEffect(() => {
+    setIsClient(true)
+
+    // ✅ тут вже є navigator
+    const ua = navigator.userAgent.toLowerCase()
+    const isApple = /iphone|ipad|ipod|macintosh/.test(ua)
+    setShouldUseHls(isApple)
   }, [])
 
   // DASH підключаємо тільки НЕ на Apple
-  useDashAudio(audioRef.current, !shouldUseHls ? dashUrl : null)
+  useDashAudio(audioRef.current, isClient && !shouldUseHls ? dashUrl : null)
 
-  // HLS (Apple -> native, інші -> hls.js, але за умовою вчителя: “інші = DASH”)
+  // HLS: Apple -> native, інші -> (опційний) fallback через hls.js (динамічний імпорт)
   useEffect(() => {
+    if (!isClient) return
+
     const audio = audioRef.current
     if (!audio) return
 
-    // чистимо попередній src
-    audio.removeAttribute('src')
-    audio.load()
+    let cleanup: undefined | (() => void)
 
-    if (!shouldUseHls) return // не Apple => DASH (dash.js вже підключився)
+    const run = async () => {
+      // чистимо попередній src
+      audio.removeAttribute('src')
+      audio.load()
 
-    // Apple => native HLS через src (canPlayType)
-    // (сам підхід: canPlayType('application/vnd.apple.mpegurl') → src = .m3u8) :contentReference[oaicite:2]{index=2}
-    if (audio.canPlayType('application/vnd.apple.mpegurl')) {
-      audio.src = hlsUrl
-    } else if (Hls.isSupported()) {
-      // на випадок macOS Chrome і т.д. (але за умовою у вас “не Apple = DASH”, тому це скоріше fallback)
-      const hls = new Hls()
-      hls.loadSource(hlsUrl)
-      hls.attachMedia(audio)
-      return () => hls.destroy()
+      if (!shouldUseHls) return // не Apple => DASH (dash.js вже підключився)
+
+      // Apple => native HLS
+      if (audio.canPlayType('application/vnd.apple.mpegurl')) {
+        audio.src = hlsUrl
+        return
+      }
+
+      // ✅ fallback: dynamic import hls.js
+      const mod = await import('hls.js')
+      const Hls = mod.default
+
+      if (Hls.isSupported()) {
+        const hls = new Hls()
+        hls.loadSource(hlsUrl)
+        hls.attachMedia(audio)
+        cleanup = () => hls.destroy()
+      } else {
+        // останній fallback
+        audio.src = hlsUrl
+      }
     }
-  }, [hlsUrl, shouldUseHls])
 
-  // гучність — окремо, без перезапуску стріму
+    run()
+
+    return () => {
+      cleanup?.()
+    }
+  }, [hlsUrl, shouldUseHls, isClient])
+
   useEffect(() => {
     const audio = audioRef.current
     if (!audio) return
@@ -92,6 +110,9 @@ export function TrackPlayer({
     setProgress(value)
   }
 
+  // ✅ щоб SSR/prerender не намагався щось рендерити “як плеєр”
+  if (!isClient) return null
+
   return (
     <div className="w-full max-w-xl space-y-4 rounded-lg border bg-neutral-950 p-4 text-white">
       <audio
@@ -106,13 +127,7 @@ export function TrackPlayer({
         <div className="flex items-center gap-3">
           <span className="w-10 text-right text-xs opacity-70">{volume}%</span>
           <div className="w-40">
-            <Slider
-              value={[volume]}
-              min={0}
-              max={100}
-              step={1}
-              onValueChange={([v]) => setVolume(v)}
-            />
+            <Slider value={[volume]} min={0} max={100} step={1} onValueChange={([v]) => setVolume(v)} />
           </div>
         </div>
 

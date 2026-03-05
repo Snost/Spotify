@@ -1,22 +1,32 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import * as dashjs from 'dashjs'
 
 export function useDashAudio(audio: HTMLAudioElement | null, url: string | null) {
   const playerRef = useRef<any>(null)
 
   useEffect(() => {
-    if (!audio || !url) return
+    let disposed = false
 
-    const player = dashjs.MediaPlayer().create()
-    playerRef.current = player
+    const run = async () => {
+      if (!audio || !url) return
 
-    player.initialize(audio, url, false)
+      // ✅ dynamic import only in browser/runtime
+      const dashjs = await import('dashjs')
+      if (disposed) return
+
+      const player = (dashjs as any).MediaPlayer().create()
+      playerRef.current = player
+
+      player.initialize(audio, url, false)
+    }
+
+    run()
 
     return () => {
+      disposed = true
       try {
-        player.reset()
+        playerRef.current?.reset?.()
       } catch {}
       playerRef.current = null
     }
