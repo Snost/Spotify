@@ -1,12 +1,13 @@
 "use client";
-
+import Link from "next/link";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/features/auth/model/auth-context";
-import { AuthLinkButton } from "@/shared/ui/auth-link-button";
 import { AuthShell } from "@/shared/ui/layout/AuthShell";
 import { AuthPageHero } from "@/features/auth/ui/AuthPageHero";
 import { AuthPageActions } from "@/features/auth/ui/AuthPageActions";
+import { Button } from "@/shared/ui/button";
+
 
 export default function WelcomePage() {
   const { isAuthed } = useAuth();
@@ -32,21 +33,19 @@ export default function WelcomePage() {
           <div className="flex-1" />
 
           <AuthPageActions>
-            <AuthLinkButton
-              href="/register"
-              variant="filled"
-              className="flex h-[50px] w-full items-center justify-center rounded-[16px] text-[16px] font-semibold"
-            >
-              Зареєструватися безкоштовно
-            </AuthLinkButton>
+           <div className="w-full max-w-[370px] space-y-4 pb-[calc(60px+env(safe-area-inset-bottom))]">
+  <Link href="/register" className="block">
+    <Button variant="primary" size="lg" className="max-w-none">
+      Зареєструватися безкоштовно
+    </Button>
+  </Link>
 
-            <AuthLinkButton
-              href="/login"
-              variant="outline"
-              className="flex h-[50px] w-full items-center justify-center rounded-[16px] text-[16px] font-semibold"
-            >
-              Увійти
-            </AuthLinkButton>
+  <Link href="/login" className="block">
+    <Button variant="outline" size="lg" className="max-w-none">
+      Увійти
+    </Button>
+  </Link>
+</div>
           </AuthPageActions>
         </div>
       </div>

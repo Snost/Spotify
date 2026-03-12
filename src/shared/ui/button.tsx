@@ -1,79 +1,55 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React from "react";
 import { cn } from "@/shared/lib/cn";
 
-type Variant = "primary" | "light" | "outline";
+type Variant = "primary" | "light" | "outline" | "secondary" | "dark";
+/*primary → синя кнопка #415A77
+light → світла кнопка #F0EEE9
+outline → прозора з бордером
+secondary → світло-синя #778DA9
+dark → disabled/dark*/
 type Size = "md" | "lg";
 
 type Props = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: Variant;
   size?: Size;
-  pressDelayMs?: number;
 };
 
 const base =
-  "inline-flex items-center justify-center font-semibold " +
-  "transition-colors duration-[300ms] ease-[cubic-bezier(0.25,0.1,0.25,1)]";
-
+  "inline-flex items-center justify-center font-semibold transition-all duration-150 active:scale-[0.98] disabled:cursor-not-allowed";
 const sizes: Record<Size, string> = {
-  md: "h-[50px] w-[214px] rounded-[16px]",
-  lg: "h-[60px] w-[370px] rounded-[20px]",
+  md: "h-[50px] w-full max-w-[214px] rounded-[16px]",
+  lg: "h-[50px] w-full max-w-[370px] rounded-[16px]",
+};
+
+const variants: Record<Variant, string> = {
+  primary:
+    "bg-groov-primary text-groov-accent active:bg-groov-secondary active:text-white disabled:bg-[#4A4A4A] disabled:text-[#2F2F2F]",
+
+  light:
+"bg-groov-accent text-groov-textDark active:bg-[#778DA9] active:text-white disabled:bg-[#4A4A4A] disabled:text-[#2F2F2F]",
+
+  outline:
+"border border-groov-accent/60 bg-transparent text-groov-accent active:bg-groov-accent active:text-groov-textDark disabled:border-[#4A4A4A] disabled:text-[#2F2F2F]",
+
+  secondary:
+    "bg-groov-secondary text-white active:opacity-90 disabled:bg-[#4A4A4A] disabled:text-[#2F2F2F]",
+
+  dark:
+    "bg-[#2F2F2F] text-[#6B7280]",
 };
 
 export function Button({
   variant = "primary",
   size = "md",
-  pressDelayMs = 800,
   className,
   children,
   ...props
 }: Props) {
-  const [pressed, setPressed] = useState(false);
-  const timeoutRef = useRef<number | null>(null);
-
-  const handleDown = () => {
-    if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
-    setPressed(true);
-  };
-
-  const handleUp = () => {
-    if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
-
-    timeoutRef.current = window.setTimeout(() => {
-      setPressed(false);
-    }, pressDelayMs);
-  };
-
-  // 🎯 ЛОГІКА КОЛЬОРІВ ЯК У FIGMA
-  const getStyles = () => {
-    if (variant === "primary") {
-      return pressed
-        ? "bg-[rgb(var(--accent))] text-[rgb(var(--text-dark))]"
-        : "bg-[rgb(var(--primary))] text-[rgb(var(--accent))]";
-    }
-
-    if (variant === "outline") {
-      return pressed
-        ? "bg-[rgb(var(--accent))] text-[rgb(var(--text-dark))]"
-        : "border border-[rgb(var(--accent))] text-[rgb(var(--accent))]";
-    }
-
-    if (variant === "light") {
-      return pressed
-        ? "bg-[rgb(var(--primary))] text-[rgb(var(--accent))]"
-        : "bg-[rgb(var(--accent))] text-[rgb(var(--text-dark))]";
-    }
-
-    return "";
-  };
-
   return (
     <button
-      className={cn(base, sizes[size], getStyles(), className)}
-      onPointerDown={handleDown}
-      onPointerUp={handleUp}
-      onPointerLeave={handleUp}
+      className={cn(base, sizes[size], variants[variant], className)}
       {...props}
     >
       {children}

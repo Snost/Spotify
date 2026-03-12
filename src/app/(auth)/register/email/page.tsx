@@ -9,6 +9,7 @@ import { Input } from "@/shared/ui/input";
 import { useAuthStore } from "@/shared/stores/auth.store";
 import { AuthShell } from "@/shared/ui/layout/AuthShell";
 import { AuthFormShell } from "@/features/auth/ui/AuthFormShell";
+import { Button } from "@/shared/ui/button";
 
 function CalendarIcon() {
   return (
@@ -294,14 +295,15 @@ export default function RegisterEmailPage() {
 
           <div className="h-[60px]" />
 
-          <button
-            type="submit"
-            disabled={!isValid || isSubmitting}
-            className="h-[50px] w-full max-w-[370px] rounded-[16px] bg-groov-accent text-[16px] font-semibold text-groov-textDark disabled:cursor-not-allowed disabled:bg-[#D8D5CF] disabled:text-[#6B7280]"
-          >
-            {isSubmitting ? "Зачекай..." : "Зареєструватися"}
-          </button>
-
+         <Button
+  type="submit"
+  variant="light"
+  size="lg"
+  disabled={!isValid || isSubmitting}
+  className="max-w-none"
+>
+  Зареєструватися
+</Button>
           {serverError && (
             <div className="mt-4 w-full max-w-[370px] groov-error">
               {serverError}

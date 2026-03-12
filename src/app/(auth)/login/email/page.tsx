@@ -1,5 +1,5 @@
 "use client";
-
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -9,6 +9,8 @@ import { Input } from "@/shared/ui/input";
 import { useAuthStore } from "@/shared/stores/auth.store";
 import { AuthShell } from "@/shared/ui/layout/AuthShell";
 import { AuthFormShell } from "@/features/auth/ui/AuthFormShell";
+import { Button } from "@/shared/ui/button";
+
 
 type FormValues = {
   login: string;
@@ -88,16 +90,26 @@ export default function LoginEmailPage() {
             />
           </div>
 
-          <div className="h-[60px]" />
+           <div className="mt-[16px] w-full max-w-[370px]">
+            <Link
+              href="/forgot-password"
+              className="text-[16px] font-normal leading-[100%] text-groov-accent"
+            >
+              Забулися пароль?
+            </Link>
+          </div>
 
-          <button
-            type="submit"
-            disabled={!isValid || isSubmitting}
-            className="h-[50px] w-full max-w-[370px] rounded-[16px] bg-groov-accent text-[16px] font-semibold text-groov-textDark disabled:cursor-not-allowed disabled:bg-[#D8D5CF] disabled:text-[#6B7280]"
-          >
-            {isSubmitting ? "Зачекай..." : "Увійти"}
-          </button>
+          <div className="h-[48px]" />
 
+       <Button
+  
+  variant="light"
+  size="lg"
+ 
+  className="max-w-none"
+>
+  Увійти
+</Button>
           {serverError && (
             <div className="mt-4 w-full max-w-[370px] groov-error">
               {serverError}
