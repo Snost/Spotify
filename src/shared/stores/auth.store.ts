@@ -2,6 +2,14 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import * as authApi from '@/shared/api/auth'
 
+type RegisterDto = {
+  email: string
+  password: string
+  displayName: string
+  birthDate: string
+  gender: string
+}
+
 type AuthState = {
   accessToken: string | null
   displayName: string | null
@@ -13,7 +21,7 @@ type AuthState = {
   setDisplayName: (n: string | null) => void
 
   login: (dto: { email: string; password: string }) => Promise<void>
-  register: (dto: { email: string; password: string; displayName: string }) => Promise<void>
+  register: (dto: RegisterDto) => Promise<void>
   tryRefresh: () => Promise<boolean>
   logout: () => Promise<void>
 }
@@ -31,12 +39,12 @@ export const useAuthStore = create<AuthState>()(
       setDisplayName: (n) => set({ displayName: n }),
 
       login: async (dto) => {
-  const { accessToken } = await authApi.login(dto)
-  set({ accessToken })
-},
+        const { accessToken } = await authApi.login(dto)
+        set({ accessToken })
+      },
 
       register: async (dto) => {
-        const { accessToken } = await authApi.register(dto) // з дефолтами birthDate/gender
+        const { accessToken } = await authApi.register(dto)
         set({ accessToken, displayName: dto.displayName })
       },
 
@@ -52,19 +60,22 @@ export const useAuthStore = create<AuthState>()(
 
       logout: async () => {
         const token = get().accessToken
+
         if (token) {
           try {
             await authApi.logout(token)
-          } catch {
-            // навіть якщо бек упав — на фронті все одно розлогінюємо
-          }
+          } catch {}
         }
+
         set({ accessToken: null, displayName: null })
       },
     }),
     {
       name: 'auth',
-      partialize: (s) => ({ accessToken: s.accessToken, displayName: s.displayName }),
+      partialize: (s) => ({
+        accessToken: s.accessToken,
+        displayName: s.displayName,
+      }),
       onRehydrateStorage: () => (state) => {
         state?.setHydrated(true)
       },

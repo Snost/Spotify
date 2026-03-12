@@ -5,23 +5,10 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-
 import { Input } from "@/shared/ui/input";
 import { useAuthStore } from "@/shared/stores/auth.store";
-
-function BackIcon() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <path
-        d="M15 18l-6-6 6-6"
-        stroke="#F0EEE9"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
+import { AuthShell } from "@/shared/ui/layout/AuthShell";
+import { AuthFormShell } from "@/features/auth/ui/AuthFormShell";
 
 type FormValues = {
   login: string;
@@ -36,7 +23,7 @@ export default function LoginEmailPage() {
   const schema = useMemo(
     () =>
       yup.object({
-        login: yup.string().trim().required("Введи email або ім’я користувача"),
+        login: yup.string().trim().required("Введи email"),
         password: yup
           .string()
           .required("Введи пароль")
@@ -59,98 +46,65 @@ export default function LoginEmailPage() {
     setServerError(null);
 
     try {
-      const email = data.login.trim();
-      console.log("TRY LOGIN", { email });
-
-      await login({ email, password: data.password });
-
-      // ✅ тепер токен уже має бути в сторі
-      console.log("TOKEN AFTER LOGIN", useAuthStore.getState().accessToken);
+      await login({
+        email: data.login.trim(),
+        password: data.password,
+      });
 
       router.replace("/home");
     } catch (e: any) {
-      setServerError(e?.message ?? "Не вдалося увійти. Спробуй ще раз.");
+      setServerError(e?.message ?? "Сталася невідома помилка. Спробуй ще раз.");
     }
   };
 
   return (
-    <div className="min-h-dvh bg-[#0D1B2A]">
-      <div className="mx-auto min-h-dvh w-full max-w-[402px] px-4">
-        <div className="flex min-h-dvh flex-col">
-          <div className="h-[50px]" />
-
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => router.back()}
-              className="grid h-[24px] w-[24px] place-items-center"
-              aria-label="Back"
-            >
-              <BackIcon />
-            </button>
-
-            <div className="h-[24px] w-[254px] text-center text-[20px] leading-[20px] font-semibold text-[#F0EEE9]">
-              З поверненням
-            </div>
+    <AuthShell>
+      <AuthFormShell title="З поверненням" onBack={() => router.back()}>
+        <form className="mt-[46px]" onSubmit={handleSubmit(onSubmit)}>
+          <div className="w-full max-w-[370px] text-[20px] font-semibold leading-[20px] text-groov-accent">
+            Адреса електронної пошти
           </div>
 
-          {serverError ? (
-            <div className="mt-3 w-[370px] text-center text-[12px] font-semibold text-red-300">
+          <div className="mt-[10px] w-full max-w-[370px]">
+            <Input
+              {...register("login")}
+              autoComplete="username"
+              error={errors.login?.message}
+            />
+          </div>
+
+          <div className="h-[24px]" />
+
+          <div className="w-full max-w-[370px] text-[20px] font-semibold leading-[20px] text-groov-accent">
+            Пароль
+          </div>
+
+          <div className="mt-[10px] w-full max-w-[370px]">
+            <Input
+              type="password"
+              {...register("password")}
+              autoComplete="current-password"
+              error={errors.password?.message}
+            />
+          </div>
+
+          <div className="h-[60px]" />
+
+          <button
+            type="submit"
+            disabled={!isValid || isSubmitting}
+            className="h-[50px] w-full max-w-[370px] rounded-[16px] bg-groov-accent text-[16px] font-semibold text-groov-textDark disabled:cursor-not-allowed disabled:bg-[#D8D5CF] disabled:text-[#6B7280]"
+          >
+            {isSubmitting ? "Зачекай..." : "Увійти"}
+          </button>
+
+          {serverError && (
+            <div className="mt-4 w-full max-w-[370px] groov-error">
               {serverError}
             </div>
-          ) : null}
-
-          <form className="mt-[46px]" onSubmit={handleSubmit(onSubmit)}>
-            <div className="h-[48px] w-[370px] text-[20px] leading-[20px] font-semibold text-[#F0EEE9]">
-              Адреса електронної пошти або ім’я користувача
-            </div>
-
-            <div className="mt-[10px]">
-              <Input
-                {...register("login")}
-                autoComplete="username"
-                error={errors.login?.message}
-              />
-            </div>
-
-            <div className="h-[24px]" />
-
-            <div className="h-[24px] w-[370px] text-[20px] leading-[20px] font-semibold text-[#F0EEE9]">
-              Пароль
-            </div>
-
-            <div className="mt-[10px]">
-              <Input
-                type="password"
-                {...register("password")}
-                autoComplete="current-password"
-                error={errors.password?.message}
-              />
-            </div>
-
-            <div className="h-[60px]" />
-
-            <button
-              type="submit"
-              disabled={!isValid || isSubmitting}
-              className="
-                h-[50px] w-[370px] rounded-[16px]
-                bg-[#F0EEE9] text-[#0D1B2A]
-                font-semibold
-                transition-colors duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)]
-                disabled:bg-[#D8D5CF] disabled:text-[#6B7280]
-                disabled:cursor-not-allowed
-                active:bg-[#778DA9] active:text-[#0D1B2A]
-              "
-            >
-              {isSubmitting ? "Зачекай..." : "Увійти"}
-            </button>
-          </form>
-
-          <div className="flex-1" />
-          <div className="h-[34px]" />
-        </div>
-      </div>
-    </div>
+          )}
+        </form>
+      </AuthFormShell>
+    </AuthShell>
   );
 }

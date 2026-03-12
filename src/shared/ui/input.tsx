@@ -22,7 +22,7 @@ export const Input = React.forwardRef<HTMLInputElement, Props>(
             // behavior
             "outline-none",
             "transition-colors duration-[300ms] ease-[cubic-bezier(0.25,0.1,0.25,1)]",
-            // focus: зробимо трошки світліше, але в межах палітри
+            
             "focus:border-[#F0EEE9]",
             error ? "border-red-400" : "",
             className

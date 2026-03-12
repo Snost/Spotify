@@ -4,14 +4,21 @@ import { Bell } from 'lucide-react'
 
 export function HomeTopBar() {
   return (
-    <div className="flex items-center justify-between">
-      <div className="text-[18px] font-extrabold tracking-tight text-white">GROOV</div>
+    <div className="flex items-center justify-between lg:pt-4">
+      <div className="text-[20px] font-semibold leading-[100%] tracking-[-0.03em] text-groov-accent lg:hidden">
+        GROOV
+      </div>
+
+      <div className="hidden text-[28px] font-semibold leading-[100%] tracking-[-0.03em] text-groov-accent lg:block">
+        Головна
+      </div>
 
       <button
-        className="grid h-9 w-9 place-items-center rounded-full bg-groov-primary text-groov-blue2 hover:text-groov-accent"
+        type="button"
+        className="grid h-[24px] w-[24px] place-items-center text-groov-accent md:h-[28px] md:w-[28px]"
         aria-label="Notifications"
       >
-        <Bell size={18} />
+        <Bell size={20} strokeWidth={2} />
       </button>
     </div>
   )

@@ -10,6 +10,9 @@ type Props = {
   emailHref: string;
   bottomHref: string;
   bottomText: string;
+  bottomVariant?: "outline" | "plain" | "filled";
+  subtitle?: string;
+  hideSocials?: boolean;
 };
 
 function MailIcon() {
@@ -48,55 +51,79 @@ export function AuthOptionsScreen({
   emailHref,
   bottomHref,
   bottomText,
+  bottomVariant = "plain",
+  subtitle,
+  hideSocials = false,
 }: Props) {
   return (
-    <div className="min-h-dvh bg-[rgb(var(--bg))]">
-      <div className="mx-auto min-h-dvh w-full max-w-[402px] px-4">
+    <div className="groov-page">
+      <div className="phone-container">
         <div className="flex min-h-dvh flex-col">
-          <div className="mx-auto w-[370px] flex-1">
-            {/* ✅ ідентичний каркас */}
-            <div className="h-[50px]" />
-            <div className="h-[130px]" />
+          <div className="h-[50px]" />
+          <div className="h-[130px]" />
 
-            <div className="flex flex-col items-center">
-              <div className="relative h-[98px] w-[98px] overflow-hidden rounded-[20px]">
-                <Image
-                  src="/groov-logo.png"
-                  alt="Groov Logo"
-                  fill
-                  priority
-                  className="object-cover"
-                />
-              </div>
+          <div className="mx-auto relative h-[98px] w-[98px] overflow-hidden rounded-[20px]">
+            <Image
+              src="/groov-logo.png"
+              alt="Groov Logo"
+              fill
+              priority
+              className="object-cover"
+            />
+          </div>
 
-              <div className="h-[20px]" />
+          <div className="h-[20px]" />
 
-              <h1 className="text-center text-[24px] leading-[24px] font-semibold text-[rgb(var(--accent))]">
-                {title}
-              </h1>
-            </div>
+          <h1 className="phone-content text-center text-[24px] font-semibold leading-[24px] text-groov-accent">
+            {title}
+          </h1>
 
-            <div className="h-[193px]" />
+          {subtitle ? (
+            <p className="phone-content mt-2 text-center text-[16px] leading-[24px] text-groov-accent/90">
+              {subtitle}
+            </p>
+          ) : null}
 
-            <div className="space-y-[10px]">
-              <Link href={emailHref} className="block">
-                <AuthOptionButton icon={<MailIcon />} variant="filled">
+          <div className="h-[193px]" />
+
+          {!hideSocials ? (
+            <div className="phone-content space-y-[10px]">
+              <Link href={emailHref} className="block w-full">
+                <AuthOptionButton
+                  icon={<MailIcon />}
+                  variant="filled"
+                  className="w-full"
+                >
                   Продовжити за допомогою <br /> електронної пошти
                 </AuthOptionButton>
               </Link>
 
-              <AuthOptionButton icon={<GoogleIcon />} variant="outline">
+              <AuthOptionButton
+                icon={<GoogleIcon />}
+                variant="outline"
+                className="w-full"
+              >
                 Продовжити за допомогою Google
               </AuthOptionButton>
 
-              <AuthOptionButton icon={<AppleIcon />} variant="outline">
+              <AuthOptionButton
+                icon={<AppleIcon />}
+                variant="outline"
+                className="w-full"
+              >
                 Продовжити за допомогою Apple
               </AuthOptionButton>
             </div>
+          ) : null}
 
-            <div className="mt-[16px]">
-             <AuthLinkButton href={bottomHref}>{bottomText}</AuthLinkButton>
-            </div>
+          <div className="phone-content mt-[16px]">
+            <AuthLinkButton
+              href={bottomHref}
+              variant={bottomVariant}
+              className="w-full"
+            >
+              {bottomText}
+            </AuthLinkButton>
           </div>
 
           <div className="h-[34px]" />
