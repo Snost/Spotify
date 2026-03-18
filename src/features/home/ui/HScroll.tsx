@@ -1,23 +1,72 @@
-import Link from 'next/link'
-import { CoverPlaceholder } from '@/shared/ui/CoverPlaceholder'
-import type { Item } from '../mock'
+'use client'
 
-export function HScroll({ items, hrefPrefix = '/track' }: { items: Item[]; hrefPrefix?: string }) {
+import Link from 'next/link'
+
+type HScrollItem = {
+  id: string | number
+  title: string
+  subtitle?: string
+  image?: string
+}
+
+type Props = {
+  items: HScrollItem[]
+  hrefPrefix: string
+  variant?: 'default' | 'album'
+}
+
+export function HScroll({
+  items,
+  hrefPrefix,
+  variant = 'default',
+}: Props) {
+  const isAlbum = variant === 'album'
+
   return (
-    <div className="-mx-4 overflow-x-auto px-4">
-      <div className="flex gap-4">
-        {items.map((it, idx) => (
-          <Link key={it.id} href={`${hrefPrefix}/${it.id}`} className="w-[120px] shrink-0">
-            <div className="relative aspect-square w-[120px] overflow-hidden rounded-xl bg-groov-primary">
-              <CoverPlaceholder variant={(((idx % 3) + 1) as 1 | 2 | 3)} />
+    <div className="hide-scrollbar -mx-4 flex items-start gap-3 overflow-x-auto px-4 pb-1">
+      {items.map((item) => (
+        <Link
+          key={item.id}
+          href={`${hrefPrefix}/${item.id}`}
+          className="w-[126px] shrink-0"
+        >
+          <div className="rounded-[18px] bg-groov-surface p-[10px]">
+            <div className="h-[80px] w-full overflow-hidden rounded-[12px] bg-groov-primary">
+              {item.image ? (
+                <img
+                  src={item.image}
+                  alt={item.title}
+                  className="h-full w-full object-cover"
+                />
+              ) : null}
             </div>
-            <div className="mt-2">
-              <div className="truncate text-[12px] font-semibold text-white">{it.title}</div>
-              {it.subtitle ? <div className="truncate text-[11px] text-groov-blue2">{it.subtitle}</div> : null}
-            </div>
-          </Link>
-        ))}
-      </div>
+
+     <div className={isAlbum ? 'pt-[8px] h-[52px]' : 'pt-[8px]'}>
+  <div
+    className={
+      isAlbum
+        ? 'line-clamp-2 text-[13px] font-medium leading-[15px] text-groov-accent'
+        : 'line-clamp-1 text-[13px] font-medium leading-[16px] text-groov-accent'
+    }
+  >
+    {item.title}
+  </div>
+
+  {item.subtitle ? (
+    <div
+      className={
+        isAlbum
+          ? 'mt-[3px] line-clamp-1 text-[11px] leading-[13px] text-groov-muted'
+          : 'mt-[2px] line-clamp-2 text-[11px] leading-[14px] text-groov-muted'
+      }
+    >
+      {item.subtitle}
+    </div>
+  ) : null}
+</div>
+          </div>
+        </Link>
+      ))}
     </div>
   )
 }

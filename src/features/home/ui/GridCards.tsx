@@ -1,20 +1,48 @@
-import Link from 'next/link'
-import { CoverPlaceholder } from '@/shared/ui/CoverPlaceholder'
-import type { Item } from '../mock'
+'use client'
 
-export function GridCards({ items, hrefPrefix = '/playlist' }: { items: Item[]; hrefPrefix?: string }) {
+import Link from 'next/link'
+
+type GridCardItem = {
+  id: string | number
+  title: string
+  subtitle?: string
+  image?: string
+}
+
+type Props = {
+  items: GridCardItem[]
+  hrefPrefix: string
+}
+
+export function GridCards({ items, hrefPrefix }: Props) {
   return (
-    <div className="grid grid-cols-2 gap-4">
-      {items.map((it, idx) => (
-        <Link key={it.id} href={`${hrefPrefix}/${it.id}`} className="rounded-xl bg-groov-primary p-3">
-          <div className="flex gap-3">
-            <div className="h-[52px] w-[52px] overflow-hidden rounded-lg bg-groov-blue1">
-              <CoverPlaceholder variant={(((idx % 3) + 1) as 1 | 2 | 3)} />
+    <div className="grid grid-cols-2 gap-3">
+      {items.map((item) => (
+        <Link
+          key={item.id}
+          href={`${hrefPrefix}/${item.id}`}
+          className="overflow-hidden rounded-[16px] bg-groov-surface"
+        >
+          <div className="h-[92px] w-full bg-groov-primary">
+            {item.image ? (
+              <img
+                src={item.image}
+                alt={item.title}
+                className="h-full w-full object-cover"
+              />
+            ) : null}
+          </div>
+
+          <div className="bg-groov-surface px-3 pb-3 pt-2">
+            <div className="line-clamp-1 text-[13px] font-medium leading-[16px] text-groov-accent">
+              {item.title}
             </div>
-            <div className="min-w-0">
-              <div className="truncate text-[12px] font-semibold text-white">{it.title}</div>
-              <div className="mt-1 line-clamp-2 text-[11px] text-groov-blue2">{it.subtitle}</div>
-            </div>
+
+            {item.subtitle ? (
+              <div className="mt-[3px] line-clamp-2 text-[11px] leading-[14px] text-groov-accent/85">
+                {item.subtitle}
+              </div>
+            ) : null}
           </div>
         </Link>
       ))}
