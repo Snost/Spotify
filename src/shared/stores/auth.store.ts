@@ -10,6 +10,11 @@ type RegisterDto = {
   gender: string
 }
 
+type LoginDto = {
+  identifier: string
+  password: string
+}
+
 type AuthState = {
   accessToken: string | null
   displayName: string | null
@@ -20,7 +25,7 @@ type AuthState = {
   setAccessToken: (t: string | null) => void
   setDisplayName: (n: string | null) => void
 
-  login: (dto: { email: string; password: string }) => Promise<void>
+  login: (dto: LoginDto) => Promise<void>
   register: (dto: RegisterDto) => Promise<void>
   tryRefresh: () => Promise<boolean>
   logout: () => Promise<void>

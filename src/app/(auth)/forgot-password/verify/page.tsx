@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { AuthShell } from "@/shared/ui/layout/AuthShell";
 import { AuthFormShell } from "@/features/auth/ui/AuthFormShell";
 import { Button } from "@/shared/ui/button";
@@ -37,8 +37,12 @@ function formatTime(totalSeconds: number) {
 
 export default function VerifyCodePage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const email = searchParams.get("email") ?? "";
+
   const [code, setCode] = useState<string[]>(["", "", "", "", "", ""]);
   const [secondsLeft] = useState(116);
+  const [serverError, setServerError] = useState<string | null>(null);
 
   const joinedCode = useMemo(() => code.join(""), [code]);
   const isValid = joinedCode.length === 6 && /^\d{6}$/.test(joinedCode);
@@ -46,11 +50,40 @@ export default function VerifyCodePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!isValid) return;
+    if (!isValid || !email) return;
 
-    console.log("VERIFY CODE", joinedCode);
+    setServerError(null);
 
-    router.push("/login/email");
+    try {
+      const response = await fetch(
+        "http://localhost:5000/api/v1/auth/password-reset/verify",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email,
+            code: joinedCode,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Невірний код або код уже недійсний.");
+      }
+
+      router.push(
+        `/forgot-password/reset?email=${encodeURIComponent(email)}&code=${encodeURIComponent(joinedCode)}`
+      );
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Сталася невідома помилка. Спробуй ще раз.";
+
+      setServerError(message);
+    }
   };
 
   return (
@@ -76,12 +109,18 @@ export default function VerifyCodePage() {
             </span>
           </div>
 
+          {serverError ? (
+            <div className="mt-4 w-full max-w-[370px] groov-error text-center">
+              {serverError}
+            </div>
+          ) : null}
+
           <div className="mt-[40px]">
             <Button
               type="submit"
               variant="light"
               size="lg"
-              disabled={!isValid}
+              disabled={!isValid || !email}
               className="max-w-none"
             >
               Підтвердити код

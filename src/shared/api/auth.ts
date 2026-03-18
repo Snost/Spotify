@@ -36,11 +36,11 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
 export type TokenResponse = { accessToken: string }
 
-export function login(dto: { email: string; password: string }) {
+export async function login(dto: { identifier: string; password: string })  {
   return request<TokenResponse>('/api/v1/auth/login', {
     method: 'POST',
     body: JSON.stringify({
-      email: dto.email,
+    identifier: dto.identifier,
       password: dto.password,
     }),
   })

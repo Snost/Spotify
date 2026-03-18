@@ -11,7 +11,6 @@ import { AuthShell } from "@/shared/ui/layout/AuthShell";
 import { AuthFormShell } from "@/features/auth/ui/AuthFormShell";
 import { Button } from "@/shared/ui/button";
 
-
 type FormValues = {
   login: string;
   password: string;
@@ -19,7 +18,7 @@ type FormValues = {
 
 export default function LoginEmailPage() {
   const router = useRouter();
-  const login = useAuthStore((s) => s.login);
+  const loginUser = useAuthStore((s) => s.login);
   const [serverError, setServerError] = useState<string | null>(null);
 
   const schema = useMemo(
@@ -48,8 +47,8 @@ export default function LoginEmailPage() {
     setServerError(null);
 
     try {
-      await login({
-        email: data.login.trim(),
+      await loginUser({
+        identifier: data.login.trim(),
         password: data.password,
       });
 
@@ -90,7 +89,7 @@ export default function LoginEmailPage() {
             />
           </div>
 
-           <div className="mt-[16px] w-full max-w-[370px]">
+          <div className="mt-[16px] w-full max-w-[370px]">
             <Link
               href="/forgot-password"
               className="text-[16px] font-normal leading-[100%] text-groov-accent"
@@ -101,15 +100,15 @@ export default function LoginEmailPage() {
 
           <div className="h-[48px]" />
 
-       <Button
-  
-  variant="light"
-  size="lg"
- 
-  className="max-w-none"
->
-  Увійти
-</Button>
+          <Button
+            type="submit"
+            variant="light"
+            size="lg"
+            className="max-w-none"
+          >
+            Увійти
+          </Button>
+
           {serverError && (
             <div className="mt-4 w-full max-w-[370px] groov-error">
               {serverError}

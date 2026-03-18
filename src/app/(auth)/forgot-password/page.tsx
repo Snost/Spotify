@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -49,6 +49,7 @@ function InfoIcon() {
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
+  const [serverError, setServerError] = useState<string | null>(null);
 
   const schema = useMemo(
     () =>
@@ -65,17 +66,43 @@ export default function ForgotPasswordPage() {
   const {
     register,
     handleSubmit,
-    formState: { errors, isValid, isSubmitting },
+    formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     resolver: yupResolver(schema),
     mode: "onChange",
     defaultValues: { email: "" },
   });
 
-const onSubmit = async (data: FormValues) => {
-  console.log("FORGOT PASSWORD", data);
-  router.push("/verify-code");
-};
+  const onSubmit = async (data: FormValues) => {
+    setServerError(null);
+
+    try {
+      const response = await fetch("http://localhost:5000/api/v1/auth/password-reset/request", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: data.email.trim(),
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Не вдалося надіслати код. Спробуй ще раз.");
+      }
+
+      router.push(
+        `/forgot-password/verify?email=${encodeURIComponent(data.email.trim())}`
+      );
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Сталася невідома помилка. Спробуй ще раз.";
+
+      setServerError(message);
+    }
+  };
 
   return (
     <AuthShell>
@@ -116,12 +143,20 @@ const onSubmit = async (data: FormValues) => {
             </p>
           </div>
 
+          {serverError ? (
+            <div className="mt-4 w-full max-w-[370px] groov-error text-left">
+              {serverError}
+            </div>
+          ) : null}
+
           <div className="h-[40px]" />
 
           <Button
+            type="submit"
             variant="light"
             size="lg"
             className="max-w-none"
+            disabled={isSubmitting}
           >
             Надіслати код
           </Button>

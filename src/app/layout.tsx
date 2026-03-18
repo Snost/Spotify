@@ -1,6 +1,6 @@
 import localFont from 'next/font/local'
-import { AuthProvider } from '@/features/auth/model/auth-context'
 import './globals.css'
+import { AppProviders } from '@/providers'
 
 const sfPro = localFont({
   src: [
@@ -31,8 +31,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="uk">
-      <body className={`${sfPro.variable} font-sans`}>
-        <AuthProvider>{children}</AuthProvider>
+     <body className={sfPro.className}>
+        <AppProviders>{children}</AppProviders>
       </body>
     </html>
   )

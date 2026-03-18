@@ -99,12 +99,16 @@ export function AuthOptionsScreen({
               </Link>
 
               <AuthOptionButton
-                icon={<GoogleIcon />}
-                variant="outline"
-                className="w-full"
-              >
-                Продовжити за допомогою Google
-              </AuthOptionButton>
+  icon={<GoogleIcon />}
+  variant="outline"
+  className="w-full"
+  onClick={() => {
+    window.location.href =
+      "http://localhost:5000/api/v1/auth/login-google";
+  }}
+>
+  Продовжити за допомогою Google
+</AuthOptionButton>
 
               <AuthOptionButton
                 icon={<AppleIcon />}
