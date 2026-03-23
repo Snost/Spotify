@@ -7,23 +7,31 @@ type Props = {
   items: SearchItem[]
   onClear: () => void
   onRemove: (id: string) => void
+  isSearching: boolean
 }
 
-export function SearchResults({ items, onClear, onRemove }: Props) {
+export function SearchResults({
+  items,
+  onClear,
+  onRemove,
+  isSearching,
+}: Props) {
   return (
     <>
       <div className="mt-[14px] flex items-center justify-between">
         <h2 className="text-[20px] font-semibold leading-[24px] text-groov-accent">
-          Результати пошуку
+          {isSearching ? 'Результати пошуку' : 'Нещодавно переглянуте'}
         </h2>
 
-        <button
-          type="button"
-          onClick={onClear}
-          className="text-[14px] leading-[18px] text-groov-accent/85"
-        >
-          Очистити
-        </button>
+        {!isSearching ? (
+          <button
+            type="button"
+            onClick={onClear}
+            className="text-[14px] leading-[18px] text-groov-accent/85"
+          >
+            Очистити
+          </button>
+        ) : null}
       </div>
 
       <div className="mt-[14px] space-y-3 pb-[100px]">

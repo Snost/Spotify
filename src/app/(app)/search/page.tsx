@@ -17,6 +17,7 @@ export default function SearchPage() {
     clearResults,
     removeItem,
     resetFilters,
+    isSearching,
   } = useSearch()
 
   return (
@@ -34,6 +35,7 @@ export default function SearchPage() {
           items={filteredResults}
           onClear={clearResults}
           onRemove={removeItem}
+          isSearching={isSearching}
         />
       </div>
 
