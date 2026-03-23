@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -17,6 +17,20 @@ function CalendarIcon() {
       <path
         d="M7 2v2M17 2v2M3 9h18M5 6h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z"
         stroke="#F0EEE980"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function ChevronDownIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+      <path
+        d="M6 9l6 6 6-6"
+        stroke="currentColor"
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -43,6 +57,13 @@ type FormValues = {
   password: string;
   confirmPassword: string;
 };
+
+const FIELD_WRAPPER_CLASS = "w-full max-w-[370px]";
+const LABEL_CLASS =
+  "w-full max-w-[370px] text-[20px] font-semibold leading-[20px] text-groov-accent";
+const FIELD_CLASS =
+  "h-[50px] w-full rounded-[16px] border border-[#778DA9] bg-[#1B263B] px-4 text-[16px] leading-[20px] text-[#F0EEE9] outline-none transition-colors focus:border-[#778DA9] focus:ring-2 focus:ring-[#778DA9]";
+const PLACEHOLDER_CLASS = "text-[#F0EEE980]";
 
 function isValidUaDate(value: string) {
   const match = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(value);
@@ -81,6 +102,8 @@ export default function RegisterEmailPage() {
   const router = useRouter();
   const registerUser = useAuthStore((s) => s.register);
   const [serverError, setServerError] = useState<string | null>(null);
+  const [isGenderOpen, setIsGenderOpen] = useState(false);
+  const genderRef = useRef<HTMLDivElement | null>(null);
 
   const schema: yup.ObjectSchema<FormValues> = useMemo(
     () =>
@@ -97,7 +120,7 @@ export default function RegisterEmailPage() {
           .email("Невірний формат email"),
         gender: yup
           .mixed<"" | GenderValue>()
-          .oneOf(["", "Male", "Female", "NonBinary", "Other", "Unspecified"])
+          .oneOf(["", "Male", "Female", "NonBinary", "Other", "Unspecified"] as const)
           .required("Обери стать")
           .test("gender-required", "Обери стать", (v) => v !== ""),
         password: yup
@@ -106,7 +129,10 @@ export default function RegisterEmailPage() {
           .min(6, "Пароль має бути мінімум 6 символів")
           .matches(/[A-Z]/, "Пароль має містити велику букву")
           .matches(/[0-9]/, "Пароль має містити цифру")
-          .matches(/[!@#$%^&*(),.?":{}|<>_\-\\/[\]=+`~;'|]/, "Пароль має містити спеціальний символ"),
+          .matches(
+            /[!@#$%^&*(),.?":{}|<>_\-\\/[\]=+`~;'|]/,
+            "Пароль має містити спеціальний символ"
+          ),
         confirmPassword: yup
           .string()
           .required("Підтверди пароль")
@@ -137,13 +163,28 @@ export default function RegisterEmailPage() {
   const gender = watch("gender");
   const birthDate = watch("birthDate");
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (!genderRef.current) return;
+      if (!genderRef.current.contains(event.target as Node)) {
+        setIsGenderOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const onBirthDateChange = (value: string) => {
     const digits = value.replace(/\D/g, "").slice(0, 8);
     const dd = digits.slice(0, 2);
     const mm = digits.slice(2, 4);
     const yyyy = digits.slice(4, 8);
     const formatted = [dd, mm, yyyy].filter(Boolean).join(".");
-    setValue("birthDate", formatted, { shouldValidate: true, shouldDirty: true });
+    setValue("birthDate", formatted, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
   };
 
   const onSubmit = async (data: FormValues) => {
@@ -164,157 +205,170 @@ export default function RegisterEmailPage() {
     }
   };
 
+  const selectedGenderLabel =
+    genderOptions.find((option) => option.value === gender)?.label ?? "Оберіть";
+
   return (
     <AuthShell>
       <AuthFormShell title="Створити акаунт" onBack={() => router.back()}>
-        <form className="mt-[14px]" onSubmit={handleSubmit(onSubmit)}>
-          <div className="w-full max-w-[370px] text-[20px] font-semibold leading-[20px] text-groov-accent">
-            Ваше ім’я?
-          </div>
-          <div className="mt-[10px] w-full max-w-[370px]">
-            <Input
-              {...register("name")}
-              autoComplete="name"
-              error={errors.name?.message}
-            />
-          </div>
-
-          <div className="h-[24px]" />
-
-          <div className="w-full max-w-[370px] text-[20px] font-semibold leading-[20px] text-groov-accent">
-            Дата народження
-          </div>
-          <div className="mt-[10px] w-full max-w-[370px]">
-            <div className="relative w-full">
-              <input
-                value={birthDate}
-                onChange={(e) => onBirthDateChange(e.target.value)}
-                inputMode="numeric"
-                placeholder="ДД.ММ.РРРР"
-                className="h-[50px] w-full rounded-[16px] border border-[#778DA9] bg-[#1B263B] px-4 pr-12 text-[#F0EEE9] placeholder:text-[#F0EEE980] outline-none focus:ring-2 focus:ring-[#778DA9]"
+        <form
+          className="mt-[14px] flex w-full flex-col items-center"
+          onSubmit={handleSubmit(onSubmit)}
+        >
+          <div className={LABEL_CLASS}>Ваше ім’я?</div>
+          <div className="mt-[10px] w-full flex justify-center">
+            <div className={FIELD_WRAPPER_CLASS}>
+              <Input
+                {...register("name")}
+                autoComplete="name"
+                error={errors.name?.message}
               />
-              <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center">
-                <CalendarIcon />
-              </div>
             </div>
+          </div>
 
-            {errors.birthDate?.message ? (
-              <div className="mt-2 w-full groov-error text-left">
-                {errors.birthDate.message}
+          <div className="h-[24px]" />
+
+          <div className={LABEL_CLASS}>Дата народження</div>
+          <div className="mt-[10px] w-full flex justify-center">
+            <div className={FIELD_WRAPPER_CLASS}>
+              <div className="relative w-full">
+                <input
+                  value={birthDate}
+                  onChange={(e) => onBirthDateChange(e.target.value)}
+                  inputMode="numeric"
+                  placeholder="ДД.ММ.РРРР"
+                  className={`${FIELD_CLASS} pr-12 placeholder:text-[#F0EEE980]`}
+                />
+                <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center">
+                  <CalendarIcon />
+                </div>
               </div>
-            ) : null}
+
+              {errors.birthDate?.message ? (
+                <div className="mt-2 w-full groov-error text-left">
+                  {errors.birthDate.message}
+                </div>
+              ) : null}
+            </div>
           </div>
 
           <div className="h-[24px]" />
 
-          <div className="w-full max-w-[370px] text-[20px] font-semibold leading-[20px] text-groov-accent">
-            Адреса електронної пошти
-          </div>
-          <div className="mt-[10px] w-full max-w-[370px]">
-            <Input
-              {...register("email")}
-              autoComplete="email"
-              error={errors.email?.message}
-            />
+          <div className={LABEL_CLASS}>Адреса електронної пошти</div>
+          <div className="mt-[10px] w-full flex justify-center">
+            <div className={FIELD_WRAPPER_CLASS}>
+              <Input
+                {...register("email")}
+                autoComplete="email"
+                error={errors.email?.message}
+              />
+            </div>
           </div>
 
           <div className="h-[24px]" />
 
-          <div className="w-full max-w-[370px] text-[20px] font-semibold leading-[20px] text-groov-accent">
-            Стать
-          </div>
-          <div className="mt-[10px] w-full max-w-[370px]">
-            <div className="relative">
-              <select
-                {...register("gender")}
-                value={gender}
-                className={[
-                  "appearance-none h-[50px] w-full rounded-[16px] px-4 pr-10",
-                  "border border-[#778DA9] bg-[#1B263B]",
-                  "outline-none focus:ring-2 focus:ring-[#778DA9]",
-                  !gender ? "text-[#F0EEE980]" : "text-[#F0EEE9]",
-                ].join(" ")}
+          <div className={LABEL_CLASS}>Стать</div>
+          <div className="mt-[10px] w-full flex justify-center">
+            <div ref={genderRef} className={`${FIELD_WRAPPER_CLASS} relative`}>
+              <button
+                type="button"
+                onClick={() => setIsGenderOpen((prev) => !prev)}
+                className={`${FIELD_CLASS} flex items-center justify-between text-left ${
+                  gender ? "text-[#F0EEE9]" : PLACEHOLDER_CLASS
+                }`}
+                aria-haspopup="listbox"
+                aria-expanded={isGenderOpen}
               >
-                <option value="" disabled>
-                  Оберіть
-                </option>
-                {genderOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+                <span>{selectedGenderLabel}</span>
+                <span className="text-[#F0EEE980]">
+                  <ChevronDownIcon />
+                </span>
+              </button>
 
-              <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[#F0EEE980]">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                  <path
-                    d="M6 9l6 6 6-6"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </div>
+              {isGenderOpen ? (
+                <div className="absolute left-0 top-[58px] z-20 w-full overflow-hidden rounded-[16px] border border-[#778DA9] bg-[#1B263B] shadow-lg">
+                  {genderOptions.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      className="flex h-[44px] w-full items-center px-4 text-left text-[16px] text-[#F0EEE9] hover:bg-[#24304A]"
+                      onClick={() => {
+                        setValue("gender", option.value, {
+                          shouldValidate: true,
+                          shouldDirty: true,
+                        });
+                        setIsGenderOpen(false);
+                      }}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+
+              {errors.gender?.message ? (
+                <div className="mt-2 w-full groov-error text-left">
+                  {errors.gender.message}
+                </div>
+              ) : null}
             </div>
-
-            {errors.gender?.message ? (
-              <div className="mt-2 w-full groov-error text-left">
-                {errors.gender.message}
-              </div>
-            ) : null}
           </div>
 
           <div className="h-[24px]" />
 
-          <div className="w-full max-w-[370px] text-[20px] font-semibold leading-[20px] text-groov-accent">
-            Пароль
-          </div>
-          <div className="mt-[10px] w-full max-w-[370px]">
-            <Input
-              type="password"
-              {...register("password")}
-              autoComplete="new-password"
-              error={errors.password?.message}
-            />
+          <div className={LABEL_CLASS}>Пароль</div>
+          <div className="mt-[10px] w-full flex justify-center">
+            <div className={FIELD_WRAPPER_CLASS}>
+              <Input
+                type="password"
+                {...register("password")}
+                autoComplete="new-password"
+                error={errors.password?.message}
+              />
+            </div>
           </div>
 
           <div className="h-[24px]" />
 
-          <div className="w-full max-w-[370px] text-[20px] font-semibold leading-[20px] text-groov-accent">
-            Підтвердіть пароль
-          </div>
-          <div className="mt-[10px] w-full max-w-[370px]">
-            <Input
-              type="password"
-              {...register("confirmPassword")}
-              autoComplete="new-password"
-              error={errors.confirmPassword?.message}
-            />
+          <div className={LABEL_CLASS}>Підтвердіть пароль</div>
+          <div className="mt-[10px] w-full flex justify-center">
+            <div className={FIELD_WRAPPER_CLASS}>
+              <Input
+                type="password"
+                {...register("confirmPassword")}
+                autoComplete="new-password"
+                error={errors.confirmPassword?.message}
+              />
+            </div>
           </div>
 
           <div className="h-[60px]" />
 
-         <Button
-  type="submit"
-  variant="light"
-  size="lg"
-  disabled={!isValid || isSubmitting}
-  className="max-w-none"
->
-  Зареєструватися
-</Button>
+          <div className="w-full flex justify-center">
+            <Button
+              type="submit"
+              variant="light"
+              size="lg"
+              disabled={!isValid || isSubmitting}
+              className="w-full max-w-[370px]"
+            >
+              Зареєструватися
+            </Button>
+          </div>
+
           {serverError && (
             <div className="mt-4 w-full max-w-[370px] groov-error">
               {serverError}
             </div>
           )}
 
-          <div className="mt-[10px] w-full max-w-[370px]">
-            <p className="m-0 text-center text-[10px] font-semibold leading-[12px] text-[#F0EEE980]">
-              Натискаючи &quot;Зареєструватися&quot;, ви погоджуєтеся з Умовами
-              використання та Політикою конфіденційності.
-            </p>
+          <div className="mt-[10px] w-full flex justify-center">
+            <div className="w-full max-w-[370px]">
+              <p className="m-0 text-center text-[10px] font-semibold leading-[12px] text-[#F0EEE980]">
+                Натискаючи &quot;Зареєструватися&quot;, ви погоджуєтеся з
+                Умовами використання та Політикою конфіденційності.
+              </p>
+            </div>
           </div>
         </form>
       </AuthFormShell>
