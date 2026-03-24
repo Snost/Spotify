@@ -16,7 +16,13 @@ function BackIcon() {
   )
 }
 
-export function AdvancedFiltersHeader() {
+type Props = {
+  title?: string
+}
+
+export function AdvancedFiltersHeader({
+  title = 'Розширені фільтри',
+}: Props) {
   const router = useRouter()
 
   return (
@@ -30,7 +36,7 @@ export function AdvancedFiltersHeader() {
       </button>
 
       <h1 className="text-[16px] font-medium leading-[20px] text-groov-accent">
-        Розширені фільтри
+        {title}
       </h1>
     </div>
   )

@@ -1,8 +1,18 @@
 type Props = {
   children: React.ReactNode
+  mobileMaxWidth?: number
+  contentClassName?: string
+  withTopGap?: boolean
+  withDefaultPadding?: boolean
 }
 
-export function AppShell({ children }: Props) {
+export function AppShell({
+  children,
+  mobileMaxWidth = 402,
+  contentClassName = '',
+  withTopGap = false,
+  withDefaultPadding = true,
+}: Props) {
   return (
     <div className="min-h-dvh bg-groov-bg text-groov-accent">
       <div className="mx-auto flex min-h-dvh w-full max-w-[1440px]">
@@ -13,7 +23,14 @@ export function AppShell({ children }: Props) {
         </aside>
 
         <main className="min-w-0 flex-1">
-          <div className="mx-auto w-full max-w-[390px] px-4 pb-24 pt-2 md:max-w-[720px] md:px-6 lg:max-w-[1100px] lg:px-8 lg:pb-10">
+          <div
+            className={`mx-auto w-full ${
+              withDefaultPadding ? 'px-4' : 'px-0'
+            } pb-24 ${
+              withTopGap ? 'pt-2' : 'pt-0'
+            } md:max-w-[720px] md:px-6 lg:max-w-[1100px] lg:px-8 lg:pb-10 ${contentClassName}`}
+            style={{ maxWidth: `${mobileMaxWidth}px` }}
+          >
             {children}
           </div>
         </main>
