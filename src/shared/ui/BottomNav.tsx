@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { usePremiumStore } from "@/features/premium/model/usePremiumStore";
 
 type NavItemProps = {
   href: string;
@@ -47,7 +48,7 @@ function HomeIcon(active: boolean) {
   );
 }
 
-function SearchIcon() {
+function SearchIcon(active: boolean) {
   return (
     <svg
       width="22"
@@ -59,7 +60,12 @@ function SearchIcon() {
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <circle cx="11" cy="11" r="6.5" />
+      <circle
+        cx="11"
+        cy="11"
+        r="6.5"
+        fill={active ? "currentColor" : "none"}
+      />
       <path d="M16 16l4 4" />
     </svg>
   );
@@ -123,6 +129,7 @@ function ProfileIcon(active: boolean) {
 
 export function BottomNav() {
   const pathname = usePathname();
+  const hasPremium = usePremiumStore((state) => state.hasPremium);
 
   const isActive = (href: string) => {
     if (href === "/home") return pathname === "/home";
@@ -137,24 +144,30 @@ export function BottomNav() {
         active={isActive("/home")}
         icon={HomeIcon}
       />
+
       <NavItem
         href="/search"
         label="Пошук"
         active={isActive("/search")}
         icon={SearchIcon}
       />
-      <NavItem
-        href="/premium"
-        label="Преміум"
-        active={isActive("/premium")}
-        icon={PremiumIcon}
-      />
+
+      {!hasPremium && (
+        <NavItem
+          href="/premium"
+          label="Преміум"
+          active={isActive("/premium")}
+          icon={PremiumIcon}
+        />
+      )}
+
       <NavItem
         href="/library"
         label="Бібліотека"
         active={isActive("/library")}
         icon={LibraryIcon}
       />
+
       <NavItem
         href="/profile"
         label="Профіль"
