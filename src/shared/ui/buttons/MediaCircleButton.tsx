@@ -1,22 +1,17 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react'
+import { cn } from '@/shared/lib/cn'
 
-type MediaCircleButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
-  children: ReactNode
-}
+type Props = React.ButtonHTMLAttributes<HTMLButtonElement>
 
-export function MediaCircleButton({
-  children,
-  className = '',
-  type = 'button',
-  ...props
-}: MediaCircleButtonProps) {
+export function MediaCircleButton({ className, ...props }: Props) {
   return (
     <button
-      type={type}
-      className={`flex items-center justify-center rounded-[18px] bg-groov-accent text-groov-textDark transition-transform active:scale-95 ${className}`}
       {...props}
-    >
-      {children}
-    </button>
+      className={cn(
+        'flex h-[40px] w-[40px] items-center justify-center rounded-[18px]',
+        'bg-[#F0EEE9] text-[#041C32]',
+        'transition active:scale-95',
+        className
+      )}
+    />
   )
 }

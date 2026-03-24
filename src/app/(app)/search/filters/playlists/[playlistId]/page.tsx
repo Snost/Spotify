@@ -8,7 +8,9 @@ import { ShareIcon } from '@/shared/ui/icons/ShareIcon'
 import { DownloadIcon } from '@/shared/ui/icons/DownloadIcon'
 import { ShuffleIcon } from '@/shared/ui/icons/ShuffleIcon'
 import { PlayIcon } from '@/shared/ui/icons/PlayIcon'
+import { ShuffleToggle } from '@/features/player/ui/ShuffleToggle'
 import { getPlaylistDetails } from '@/features/search/mock/playlist-details.mock'
+import { TrackPlayToggle } from '@/features/player/ui/TrackPlayToggle'
 
 type Props = {
   params: Promise<{ playlistId: string }>
@@ -83,12 +85,10 @@ export default async function PlaylistDetailsPage({ params }: Props) {
 
           <div className="flex items-center gap-[10px]">
             <IconButton className="h-[28px] w-[28px]">
-              <ShuffleIcon className="h-[24px] w-[24px]" isActive />
+<ShuffleToggle />
             </IconButton>
 
-            <MediaCircleButton className="h-[40px] w-[40px] rounded-[18px]">
-              <PlayIcon className="h-[24px] w-[24px]" />
-            </MediaCircleButton>
+            <TrackPlayToggle trackId={playlist.id} />
           </div>
         </div>
 
