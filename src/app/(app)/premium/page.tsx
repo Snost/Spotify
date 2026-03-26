@@ -18,54 +18,59 @@ export default function PremiumPage() {
   }
 
   return (
-    <AppShell
-      mobileMaxWidth={402}
-      withDefaultPadding={false}
-      withTopGap={false}
-      contentClassName="pb-[98px]"
+  <AppShell
+  withSafeAreaTop={false}
+  mobileMaxWidth={402}
+  withBottomNavSpacing
+  withDefaultPadding={false}
+  contentClassName="overflow-hidden pb-[98px]"
+
     >
-      <div className="relative bg-groov-bg">
-        <section className="relative h-[249px]">
-          <img
-            src="/premium.png"
-            alt="Premium"
-            className="absolute inset-0 block h-full w-full object-cover"
-          />
+<div className="relative -mt-[12px] bg-groov-bg">
+  <section className="relative h-[249px] overflow-hidden">
+    <img
+      src="/premium.png"
+      alt="Premium"
+      className="absolute inset-0 block h-full w-full object-cover"
+    />
 
-          <div className="pointer-events-none absolute inset-x-0 top-0 bottom-[-12px] z-[1] bg-[linear-gradient(180deg,rgba(255,255,255,0.16)_0%,rgba(255,255,255,0.10)_50%,rgba(13,27,42,0.65)_70%,rgba(13,27,42,0.92)_86%,#0D1B2A_100%)]" />
+    <div className="pointer-events-none absolute inset-x-0 top-0 bottom-[-12px] z-[1] bg-[linear-gradient(180deg,rgba(255,255,255,0.16)_0%,rgba(255,255,255,0.10)_50%,rgba(13,27,42,0.65)_70%,rgba(13,27,42,0.92)_86%,#0D1B2A_100%)]" />
 
-          <div className="relative z-[2] flex h-full flex-col justify-end px-4 pb-[12px] text-groov-accent">
-            <h1 className="text-[24px] font-normal leading-[20px]">
-              Premium
-            </h1>
+    <div
+      className="relative z-[2] flex h-full flex-col justify-end px-4 pb-[12px] text-groov-accent"
+      style={{ paddingTop: 'max(env(safe-area-inset-top), 12px)' }}
+    >
+      <h1 className="text-[24px] font-normal leading-[20px]">
+        Premium
+      </h1>
 
-            <p className="mt-[6px] text-[20px] font-normal leading-[21px]">
-              Лише ти і музика в GROOV
-              <br />
-              Твій перший місяць Premium — 0₴
-            </p>
-          </div>
-        </section>
+      <p className="mt-[6px] text-[20px] font-normal leading-[21px]">
+        Лише ти і музика в GROOV
+        <br />
+        Твій перший місяць Premium — 0₴
+      </p>
+    </div>
+  </section>
 
-        <div className="px-4 pt-[16px]">
-          <Button
-            type="button"
-            variant="light"
-            size="lg"
-            onClick={handleHeroActivate}
-            className="max-w-none rounded-[18px] text-[20px] font-normal leading-[20px]"
-          >
-            Спробувати 1 місяць за 0₴
-          </Button>
+  <div className="px-4 pt-[16px]">
+    <Button
+      type="button"
+      variant="light"
+      size="lg"
+      onClick={handleHeroActivate}
+      className="max-w-none rounded-[18px] text-[20px] font-normal leading-[20px]"
+    >
+      Спробувати 1 місяць за 0₴
+    </Button>
 
-          <p className="mt-[12px] text-[13px] font-normal leading-[16px] text-groov-accent">
-            0₴ за 1 місяць, потім 199,99₴ на місяць. Пропозиція доступна лише
-            для тих хто не користувався підпискою Premium і оформили її через
-            GROOV. Пропозиції в App Store можуть відрізнятися.{' '}
-            <span className="underline">Діють умови.</span>
-          </p>
-        </div>
-      </div>
+    <p className="mt-[12px] text-[13px] font-normal leading-[16px] text-groov-accent">
+      0₴ за 1 місяць, потім 199,99₴ на місяць. Пропозиція доступна лише
+      для тих хто не користувався підпискою Premium і оформили її через
+      GROOV. Пропозиції в App Store можуть відрізнятися.{' '}
+      <span className="underline">Діють умови.</span>
+    </p>
+  </div>
+</div>
 
       <section className="px-4 pt-2">
         <div className="rounded-[20px] bg-groov-surface px-4 pb-4 pt-4 text-groov-accent">

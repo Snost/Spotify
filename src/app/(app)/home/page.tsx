@@ -15,7 +15,7 @@ export default function HomePage() {
   const displayName = useAuthStore((s) => s.displayName)
 
   return (
-    <AppShell>
+    <AppShell withBottomNavSpacing>
       <HomeTopBar />
 
       <div className="mt-[26px]">
@@ -35,7 +35,7 @@ export default function HomePage() {
         <div className="space-y-7">
           <SectionBlock className="mt-0">
             <SectionHeader title="Нещодавно слухали" href="/recent" />
-            <HScroll items={recently} hrefPrefix="/track" />
+<HScroll items={recently} hrefPrefix="/play" />
           </SectionBlock>
 
           <SectionBlock>
@@ -56,7 +56,7 @@ export default function HomePage() {
       <div className="lg:hidden">
         <SectionBlock>
           <SectionHeader title="Нещодавно слухали" href="/recent" />
-          <HScroll items={recently} hrefPrefix="/track" />
+          <HScroll items={recently} hrefPrefix="/play" />
         </SectionBlock>
 
         <SectionBlock>

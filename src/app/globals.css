@@ -121,4 +121,35 @@ p {
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }
+@keyframes heart-pop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.18);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-heart-pop {
+  animation: heart-pop 220ms ease-out;
+}
+@keyframes player-close-fade {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(18px) scale(0.985);
+  }
+}
+
+.animate-player-close-fade {
+  animation: player-close-fade 220ms ease-out forwards;
+}
+
 }

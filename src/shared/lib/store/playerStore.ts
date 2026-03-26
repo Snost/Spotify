@@ -1,43 +1,69 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { PlayerTrack } from '@/features/player/model/types'
 
 type PlayerState = {
-  url: string | null
+  currentTrack: PlayerTrack | null
   isPlaying: boolean
-  volume: number // 0..100
   currentTime: number
   duration: number
+  likedTrackIds: string[]
 
-  setUrl: (url: string | null) => void
-  setPlaying: (v: boolean) => void
-  setVolume: (v: number) => void
-  setCurrentTime: (v: number) => void
-  setDuration: (v: number) => void
+  setTrack: (track: PlayerTrack | null) => void
+  setPlaying: (value: boolean) => void
+  setCurrentTime: (value: number) => void
+  setDuration: (value: number) => void
+  toggleLikedTrack: (trackId: string) => void
+  reset: () => void
 }
 
 export const usePlayerStore = create<PlayerState>()(
   persist(
     (set) => ({
-      url: null,
+      currentTrack: null,
       isPlaying: false,
-      volume: 80,
       currentTime: 0,
       duration: 0,
+      likedTrackIds: [],
 
-      setUrl: (url) => set({ url }),
-      setPlaying: (v) => set({ isPlaying: v }),
-      setVolume: (v) => set({ volume: v }),
-      setCurrentTime: (v) => set({ currentTime: v }),
-      setDuration: (v) => set({ duration: v }),
+      setTrack: (track) =>
+        set({
+          currentTrack: track,
+          currentTime: 0,
+          duration: track?.durationSeconds ?? 0,
+        }),
+
+      setPlaying: (value) => set({ isPlaying: value }),
+      setCurrentTime: (value) => set({ currentTime: value }),
+      setDuration: (value) => set({ duration: value }),
+
+      toggleLikedTrack: (trackId) =>
+        set((state) => {
+          const alreadyLiked = state.likedTrackIds.includes(trackId)
+
+          return {
+            likedTrackIds: alreadyLiked
+              ? state.likedTrackIds.filter((id) => id !== trackId)
+              : [...state.likedTrackIds, trackId],
+          }
+        }),
+
+      reset: () =>
+        set({
+          currentTrack: null,
+          isPlaying: false,
+          currentTime: 0,
+          duration: 0,
+        }),
     }),
     {
       name: 'player-store',
-      partialize: (s) => ({
-        url: s.url,
-        isPlaying: s.isPlaying,
-        volume: s.volume,
-        currentTime: s.currentTime,
-        duration: s.duration,
+      partialize: (state) => ({
+        currentTrack: state.currentTrack,
+        isPlaying: state.isPlaying,
+        currentTime: state.currentTime,
+        duration: state.duration,
+        likedTrackIds: state.likedTrackIds,
       }),
     }
   )

@@ -25,22 +25,21 @@ export default async function PlaylistDetailsPage({ params }: Props) {
   }
 
   return (
-    <AppShell
+    <AppShell 
       mobileMaxWidth={402}
       withDefaultPadding={false}
-      withTopGap={false}
       contentClassName="pb-0"
     >
       <div className="w-full border-t border-groov-accent/10" />
 
-      <div className="bg-groov-surface px-4 pb-[16px] pt-[16px]">
         <div className="flex items-center gap-3 text-groov-accent">
           <BackButton className="flex h-[26px] w-[26px] items-center justify-center text-groov-accent" />
 
           <h1 className="line-clamp-1 text-[20px] font-semibold tracking-[-0.01em] text-groov-accent">
             {playlist.title}
           </h1>
-        </div>
+        
+
       </div>
 
       <div className="px-4 pb-6">
