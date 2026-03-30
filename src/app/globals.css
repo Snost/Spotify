@@ -151,5 +151,13 @@ p {
 .animate-player-close-fade {
   animation: player-close-fade 220ms ease-out forwards;
 }
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
 
 }

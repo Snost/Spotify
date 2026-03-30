@@ -1,13 +1,10 @@
 import { notFound } from 'next/navigation'
 import { AppShell } from '@/shared/ui/layout/AppShell'
 import { IconButton } from '@/shared/ui/buttons/IconButton'
-import { MediaCircleButton } from '@/shared/ui/buttons/MediaCircleButton'
 import { BackButton } from '@/shared/ui/buttons/BackButton'
 import { MoreIcon } from '@/shared/ui/icons/MoreIcon'
 import { ShareIcon } from '@/shared/ui/icons/ShareIcon'
 import { DownloadIcon } from '@/shared/ui/icons/DownloadIcon'
-import { ShuffleIcon } from '@/shared/ui/icons/ShuffleIcon'
-import { PlayIcon } from '@/shared/ui/icons/PlayIcon'
 import { ShuffleToggle } from '@/features/player/ui/ShuffleToggle'
 import { getPlaylistDetails } from '@/features/search/mock/playlist-details.mock'
 import { TrackPlayToggle } from '@/features/player/ui/TrackPlayToggle'
@@ -25,21 +22,19 @@ export default async function PlaylistDetailsPage({ params }: Props) {
   }
 
   return (
-    <AppShell 
+    <AppShell
       mobileMaxWidth={402}
       withDefaultPadding={false}
       contentClassName="pb-0"
     >
       <div className="w-full border-t border-groov-accent/10" />
 
-        <div className="flex items-center gap-3 text-groov-accent">
-          <BackButton className="flex h-[26px] w-[26px] items-center justify-center text-groov-accent" />
+      <div className="flex items-center gap-3 text-groov-accent">
+        <BackButton className="flex h-[26px] w-[26px] items-center justify-center text-groov-accent" />
 
-          <h1 className="line-clamp-1 text-[20px] font-semibold tracking-[-0.01em] text-groov-accent">
-            {playlist.title}
-          </h1>
-        
-
+        <h1 className="line-clamp-1 text-[20px] font-semibold tracking-[-0.01em] text-groov-accent">
+          {playlist.title}
+        </h1>
       </div>
 
       <div className="px-4 pb-6">
@@ -83,10 +78,7 @@ export default async function PlaylistDetailsPage({ params }: Props) {
           </div>
 
           <div className="flex items-center gap-[10px]">
-            <IconButton className="h-[28px] w-[28px]">
-<ShuffleToggle />
-            </IconButton>
-
+            <ShuffleToggle />
             <TrackPlayToggle trackId={playlist.id} />
           </div>
         </div>
