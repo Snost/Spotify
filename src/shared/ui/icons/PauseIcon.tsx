@@ -2,7 +2,7 @@ type IconProps = {
   className?: string
 }
 
-export function PauseIcon({ className }: IconProps) {
+export function PauseIcon({ className = '' }: IconProps) {
   return (
     <svg
       viewBox="0 0 38 38"

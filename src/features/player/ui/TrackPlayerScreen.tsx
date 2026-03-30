@@ -7,14 +7,13 @@ import { PlayerTrack } from '@/features/player/model/types'
 import { usePlayerStore } from '@/shared/lib/store/playerStore'
 import { IconButton } from '@/shared/ui/buttons/IconButton'
 import { MoreIcon } from '@/shared/ui/icons/MoreIcon'
-import { PauseIcon } from '@/shared/ui/icons/PauseIcon'
-import { PlayIcon } from '@/shared/ui/icons/PlayIcon'
 import { ShuffleIcon } from '@/shared/ui/icons/ShuffleIcon'
 import { NextIcon } from '@/shared/ui/icons/NextIcon'
 import { PrevIcon } from '@/shared/ui/icons/PrevIcon'
 import { RepeatIcon } from '@/shared/ui/icons/RepeatIcon'
 import { HeartIcon } from '@/shared/ui/icons/HeartIcon'
 import { ChevronDownIcon } from '@/shared/ui/icons/ChevronDownIcon'
+import { TrackPlayToggle } from '@/features/player/ui/TrackPlayToggle'
 
 type Props = {
   track: PlayerTrack
@@ -41,7 +40,6 @@ export function TrackPlayerScreen({ track }: Props) {
   const likedTrackIds = usePlayerStore((state) => state.likedTrackIds)
 
   const setTrack = usePlayerStore((state) => state.setTrack)
-  const setPlaying = usePlayerStore((state) => state.setPlaying)
   const setCurrentTime = usePlayerStore((state) => state.setCurrentTime)
   const toggleLikedTrack = usePlayerStore((state) => state.toggleLikedTrack)
 
@@ -49,11 +47,10 @@ export function TrackPlayerScreen({ track }: Props) {
   const [isClosing, setIsClosing] = useState(false)
 
   useEffect(() => {
-    if (currentTrack?.id !== track.id) {
-      setTrack(track)
-      setPlaying(false)
-    }
-  }, [track, currentTrack?.id, setTrack, setPlaying])
+  if (currentTrack?.id !== track.id) {
+    setTrack(track)
+  }
+}, [track, currentTrack?.id, setTrack])
 
   useEffect(() => {
     if (!isHeartAnimating) return
@@ -216,16 +213,12 @@ export function TrackPlayerScreen({ track }: Props) {
           <PrevIcon className="h-[24px] w-[24px]" />
         </button>
 
-        <button
-          type="button"
-          aria-label={isPlaying ? 'Пауза' : 'Відтворити'}
-          onClick={() => setPlaying(!isPlaying)}
-          className="flex h-[80px] w-[80px] items-center justify-center rounded-full bg-groov-accent text-groov-textDark"
-        >
-          <div className="flex h-[34px] w-[34px] items-center justify-center">
-            {isPlaying ? <PauseIcon /> : <PlayIcon />}
-          </div>
-        </button>
+     <TrackPlayToggle
+  trackId={track.id}
+  source="player"
+  variant="circle"
+  size="lg"
+/>
 
         <button
           type="button"

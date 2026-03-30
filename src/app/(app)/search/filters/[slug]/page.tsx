@@ -40,7 +40,6 @@ export default async function FilterDetailsPage({ params }: Props) {
     <AppShell
       mobileMaxWidth={402}
       withDefaultPadding={false}
-      withTopGap={false}
     >
       <div className="px-4 pb-[16px] pt-[16px]">
         <div className="flex items-center gap-3 text-groov-accent">

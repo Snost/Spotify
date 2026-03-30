@@ -2,7 +2,7 @@ type IconProps = {
   className?: string
 }
 
-export function PlayIcon({ className }: IconProps) {
+export function PlayIcon({ className = '' }: IconProps) {
   return (
     <svg
       viewBox="0 0 38 38"

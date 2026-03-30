@@ -27,7 +27,6 @@ export default async function PlaylistDetailsPage({ params }: Props) {
       withDefaultPadding={false}
       contentClassName="pb-0"
     >
-      <div className="w-full border-t border-groov-accent/10" />
 
       <div className="flex items-center gap-3 text-groov-accent">
         <BackButton className="flex h-[26px] w-[26px] items-center justify-center text-groov-accent" />
@@ -79,8 +78,13 @@ export default async function PlaylistDetailsPage({ params }: Props) {
 
           <div className="flex items-center gap-[10px]">
             <ShuffleToggle />
-            <TrackPlayToggle trackId={playlist.id} />
-          </div>
+           <TrackPlayToggle
+    trackId={playlist.id}
+    source="playlist"
+    variant="round"
+    size="md"
+  />
+</div>
         </div>
 
         <div className="mt-[20px] space-y-[12px]">
