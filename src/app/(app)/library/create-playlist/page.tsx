@@ -10,6 +10,7 @@ export default function CreatePlaylistPage() {
       withDefaultPadding={false}
       withBottomNavSpacing={false}
       contentClassName="pb-0"
+      pageMode="screen"
     >
       <div className="min-h-dvh bg-groov-bg px-[16px] pt-[10px] text-groov-accent">
 <CreatePlaylistStepHeader

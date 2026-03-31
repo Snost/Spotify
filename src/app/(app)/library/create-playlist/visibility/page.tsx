@@ -5,12 +5,9 @@ import { CreatePlaylistVisibilityForm } from '@/features/library/ui/CreatePlayli
 export default function CreatePlaylistVisibilityPage() {
   return (
     <AppShell
-      mobileMaxWidth={402}
       withDefaultPadding={false}
-      withBottomNavSpacing={false}
-      contentClassName="h-dvh overflow-hidden pb-0"
-    >
-      <div className="flex h-full flex-col overflow-hidden bg-groov-bg px-[16px] pt-[10px] text-groov-accent">
+      pageMode="screen"  >
+      <div className="min-h-dvh bg-groov-bg px-[16px] pt-[10px] text-groov-accent">
         <CreatePlaylistStepHeader
           backHref="/library/create-playlist/tracks"
           stepLabel="Крок 4 з 5"

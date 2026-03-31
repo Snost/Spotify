@@ -1,10 +1,11 @@
 'use client'
 
-import Link from 'next/link'
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { HexColorPicker } from 'react-colorful'
 import { DownloadLibIcon } from '@/shared/ui/icons/DownloadLibIcon'
 import { EyedropperIcon } from '@/shared/ui/icons/EyedropperIcon'
+import { CreatePlaylistBottomAction } from './CreatePlaylistBottomAction'
+import { CreatePlaylistNextButton } from './CreatePlaylistNextButton'
 
 const coverColors = [
   '#E5B19C',
@@ -21,15 +22,9 @@ export function CreatePlaylistCoverForm() {
   const [uploadedImageName, setUploadedImageName] = useState('')
   const [isUploadSelected, setIsUploadSelected] = useState(false)
 
-  const fileInputRef = useRef<HTMLInputElement | null>(null)
-
   const isPresetColor = coverColors.includes(
     selectedColor as (typeof coverColors)[number]
   )
-
-  const handleUploadClick = () => {
-    fileInputRef.current?.click()
-  }
 
   return (
     <>
@@ -43,7 +38,6 @@ export function CreatePlaylistCoverForm() {
         </p>
       </div>
 
-      {/* GENERATE COVER */}
       <div
         className={`mt-[24px] rounded-[16px] border-2 bg-groov-surface px-[10px] pb-[10px] pt-[10px] transition-all duration-200 ${
           isCoverSelected
@@ -142,7 +136,6 @@ export function CreatePlaylistCoverForm() {
         )}
       </div>
 
-      {/* UPLOAD COVER */}
       <div
         className={`mt-[16px] rounded-[12px] border-2 bg-groov-surface px-[10px] pb-[10px] pt-[10px] transition-all duration-200 ${
           isUploadSelected
@@ -173,37 +166,29 @@ export function CreatePlaylistCoverForm() {
         </div>
 
         <input
-          ref={fileInputRef}
           type="file"
           accept="image/*"
           className="hidden"
+          id="playlist-cover-upload"
           onChange={(e) => {
             const file = e.target.files?.[0]
             if (!file) return
-
             setUploadedImageName(file.name)
             setIsUploadSelected(true)
           }}
         />
 
-        <button
-          type="button"
-          onClick={handleUploadClick}
-          className="mt-[14px] h-[40px] w-full rounded-[12px] bg-groov-secondary text-[16px] text-groov-accent transition-opacity active:opacity-80"
+        <label
+          htmlFor="playlist-cover-upload"
+          className="mt-[14px] flex h-[40px] w-full cursor-pointer items-center justify-center rounded-[12px] bg-groov-secondary text-[16px] text-groov-accent transition-opacity active:opacity-80"
         >
           Завантажити зображення
-        </button>
+        </label>
       </div>
 
-      {/* NEXT */}
-      <div className="mt-auto pb-[max(env(safe-area-inset-bottom),40px)] pt-[24px]">
-    
-<Link
-  href="/library/create-playlist/tracks"          className="flex h-[50px] w-full items-center justify-center rounded-[14px] bg-groov-secondary text-[16px] text-groov-accent transition-opacity active:opacity-80"
-        >
-          Далі
-        </Link>
-      </div>
+      <CreatePlaylistBottomAction className="pt-[24px]" bottomOffset={40}>
+  <CreatePlaylistNextButton href="/library/create-playlist/tracks" />
+</CreatePlaylistBottomAction>
     </>
   )
 }

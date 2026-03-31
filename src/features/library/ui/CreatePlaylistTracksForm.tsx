@@ -1,7 +1,8 @@
 'use client'
 
-import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
+import { CreatePlaylistBottomAction } from './CreatePlaylistBottomAction'
+import { CreatePlaylistNextButton } from './CreatePlaylistNextButton'
 
 type TrackItem = {
   id: string
@@ -290,24 +291,12 @@ export function CreatePlaylistTracksForm() {
         </button>
       )}
 
-      <div className="sticky bottom-0 left-0 w-full bg-gradient-to-t from-groov-bg via-groov-bg/90 to-transparent pt-[12px] pb-[max(env(safe-area-inset-bottom),40px)]">
-        {hasSelectedTracks ? (
-          <Link
-            href="/library/create-playlist/visibility"
-            className="flex h-[50px] w-full items-center justify-center rounded-[14px] bg-groov-secondary text-[16px] font-medium text-groov-accent transition-opacity active:opacity-80"
-          >
-            Далі
-          </Link>
-        ) : (
-          <button
-            type="button"
-            disabled
-            className="h-[50px] w-full rounded-[14px] bg-groov-secondary text-[16px] font-medium text-groov-accent opacity-70"
-          >
-            Далі
-          </button>
-        )}
-      </div>
+      <CreatePlaylistBottomAction mode="sticky"  className="pt-[24px]" bottomOffset={40}>
+        <CreatePlaylistNextButton
+          href="/library/create-playlist/visibility"
+          disabled={!hasSelectedTracks}
+        />
+      </CreatePlaylistBottomAction>
     </>
   )
 }

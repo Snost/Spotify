@@ -1,7 +1,8 @@
 'use client'
 
-import Link from 'next/link'
 import { useState } from 'react'
+import { CreatePlaylistBottomAction } from './CreatePlaylistBottomAction'
+import { CreatePlaylistNextButton } from './CreatePlaylistNextButton'
 
 export function CreatePlaylistForm() {
   const [name, setName] = useState('')
@@ -70,24 +71,12 @@ export function CreatePlaylistForm() {
         </div>
       </div>
 
-      <div className="mt-auto pb-[max(env(safe-area-inset-bottom),16px)] pt-[150px]">
-        {isNextDisabled ? (
-          <button
-            type="button"
-            disabled
-            className="h-[50px] w-full rounded-[14px] bg-groov-secondary text-[16px] font-medium leading-[19px] text-groov-accent opacity-70"
-          >
-            Далі
-          </button>
-        ) : (
-          <Link
-            href="/library/create-playlist/cover"
-            className="flex h-[50px] w-full items-center justify-center rounded-[14px] bg-groov-accent text-[16px] font-medium leading-[19px] text-groov-textDark transition-opacity active:opacity-80"
-          >
-            Далі
-          </Link>
-        )}
-      </div>
+      <CreatePlaylistBottomAction className="pt-[200px]">
+        <CreatePlaylistNextButton
+          href="/library/create-playlist/cover"
+          disabled={isNextDisabled}
+        />
+      </CreatePlaylistBottomAction>
     </>
   )
 }
