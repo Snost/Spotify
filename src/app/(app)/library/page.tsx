@@ -11,6 +11,8 @@ import { LibraryStats } from '@/features/library/ui/LibraryStats'
 import { SavedCollections } from '@/features/library/ui/SavedCollections'
 import { RecentPlaylists } from '@/features/library/ui/RecentPlaylists'
 import { LikedTracksList } from '@/features/library/ui/LikedTracksList'
+import { FollowedArtists } from '@/features/library/ui/FollowedArtists'
+import { MyPlaylistsSection } from '@/features/library/ui/MyPlaylistsSection'
 
 export default function LibraryPage() {
   const [activeTab, setActiveTab] = useState<LibraryTabId>('saved')
@@ -35,9 +37,8 @@ export default function LibraryPage() {
 
         {activeTab === 'saved' && (
           <>
-<SavedCollections
-  items={libraryData.saved.savedCollections}
-/>          <RecentPlaylists items={libraryData.saved.recentPlaylists} />
+            <SavedCollections items={libraryData.saved.savedCollections} />
+            <RecentPlaylists items={libraryData.saved.recentPlaylists} />
           </>
         )}
 
@@ -48,14 +49,18 @@ export default function LibraryPage() {
           />
         )}
 
-        {activeTab === 'playlists' && (
-          <RecentPlaylists items={libraryData.saved.recentPlaylists} />
+        {activeTab === 'artists' && (
+          <FollowedArtists
+            title={libraryData.artists.title}
+            artists={libraryData.artists.items}
+          />
         )}
 
-        {activeTab === 'artists' && (
-          <div className="mt-[24px] rounded-[14px] bg-groov-surface p-4 text-groov-accent">
-            Артисти додамо наступним кроком
-          </div>
+        {activeTab === 'playlists' && (
+          <MyPlaylistsSection
+            title={libraryData.playlists.title}
+            items={libraryData.playlists.items}
+          />
         )}
       </div>
 

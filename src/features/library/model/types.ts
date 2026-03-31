@@ -31,6 +31,15 @@ export type RecentPlaylist = {
   isMoreCard?: boolean
 }
 
+export type MyPlaylist = {
+  id: string
+  title: string
+  author: string
+  tracksCount: number
+  cover?: string
+  accentColor?: string
+}
+
 export type LikedTrack = {
   id: string
   title: string
@@ -38,6 +47,14 @@ export type LikedTrack = {
   duration: string
   cover: string
   isLiked?: boolean
+}
+
+export type FollowedArtist = {
+  id: string
+  name: string
+  followers: string
+  image: string
+  isFollowing?: boolean
 }
 
 export type LibrarySavedContent = {
@@ -51,9 +68,21 @@ export type LibraryLikedContent = {
   tracks: LikedTrack[]
 }
 
+export type LibraryArtistsContent = {
+  title: string
+  items: FollowedArtist[]
+}
+
+export type LibraryPlaylistsContent = {
+  title: string
+  items: MyPlaylist[]
+}
+
 export type LibraryPageData = {
   tabs: LibraryTab[]
   stats: LibraryStat[]
   saved: LibrarySavedContent
   liked: LibraryLikedContent
+  artists: LibraryArtistsContent
+  playlists: LibraryPlaylistsContent
 }

@@ -16,7 +16,7 @@ const sfPro = localFont({
     },
     {
       path: '../fonts/SF-Pro-Display-Semibold.otf',
-      weight: '600',
+      weight: '590',
       style: 'normal',
     },
   ],
