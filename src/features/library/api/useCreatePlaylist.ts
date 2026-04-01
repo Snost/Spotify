@@ -2,10 +2,8 @@ import { useMutation } from '@tanstack/react-query'
 import {
   addTrackToPlaylist,
   createPlaylist,
-  linkPlaylistCover,
   updatePlaylist,
 } from '@/shared/api/playlists'
-import { uploadImage } from '@/shared/api/media'
 
 type CreatePlaylistInput = {
   name: string
@@ -22,7 +20,6 @@ export function useCreatePlaylist() {
       description,
       isPublic,
       trackIds,
-      coverFile,
     }: CreatePlaylistInput) => {
       const created = await createPlaylist()
       const playlistId = created.playlistId
@@ -32,18 +29,6 @@ export function useCreatePlaylist() {
         description,
         isPublic,
       })
-
-      if (coverFile) {
-        const uploadedImage = await uploadImage(coverFile)
-
-        await linkPlaylistCover(playlistId, {
-          imageId: uploadedImage.imageId,
-          imageWidth: 300,
-          imageHeight: 300,
-          imageFileType: coverFile.type || 'image/png',
-          imageSizeInBytes: coverFile.size || 100000,
-        })
-      }
 
       for (const trackId of trackIds) {
         await addTrackToPlaylist(playlistId, { trackId })

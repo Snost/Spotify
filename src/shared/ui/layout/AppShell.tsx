@@ -1,6 +1,7 @@
 'use client'
 
 import type { ReactNode } from 'react'
+import { BottomNav } from '@/shared/ui/BottomNav'
 import { useAutoPageMode } from '@/shared/lib/hooks/useAutoPageMode'
 
 type Props = {
@@ -22,7 +23,7 @@ export function AppShell({
   withDefaultPadding = true,
   withSafeAreaTop = true,
   withSafeAreaBottom = true,
-  withBottomNavSpacing = false,
+  withBottomNavSpacing = true,
   pageMode = 'auto',
   mobileTopOffset = 50,
 }: Props) {
@@ -43,7 +44,6 @@ export function AppShell({
 
   return (
     <div className="bg-groov-bg text-groov-accent">
-      {/* hidden measuring layer for auto mode */}
       {pageMode === 'auto' && (
         <div className="pointer-events-none absolute left-0 top-0 -z-10 w-full opacity-0">
           <div className="mx-auto flex w-full max-w-[1440px]">
@@ -100,6 +100,10 @@ export function AppShell({
             </div>
           </main>
         </div>
+      </div>
+
+      <div className="lg:hidden">
+        <BottomNav />
       </div>
     </div>
   )

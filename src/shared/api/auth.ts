@@ -3,10 +3,13 @@ import { ApiError, mapApiError } from './error'
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000'
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const url = `${API_URL}${path}`
+  console.log('AUTH REQUEST URL:', url)
+
   let res: Response
 
   try {
-    res = await fetch(`${API_URL}${path}`, {
+    res = await fetch(url, {
       ...init,
       headers: {
         'Content-Type': 'application/json',
@@ -14,9 +17,12 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
       },
       credentials: 'include',
     })
-  } catch {
+  } catch (error) {
+    console.error('FETCH FAILED:', error)
     throw new ApiError('Не вдалося підключитися до сервера')
   }
+
+  console.log('AUTH RESPONSE STATUS:', res.status, res.statusText)
 
   if (res.ok) {
     if (res.status === 204) return undefined as T
@@ -31,16 +37,18 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     payload = null
   }
 
+  console.error('AUTH RESPONSE PAYLOAD:', payload)
+
   throw mapApiError(payload, res.status)
 }
 
 export type TokenResponse = { accessToken: string }
 
-export async function login(dto: { identifier: string; password: string })  {
+export async function login(dto: { identifier: string; password: string }) {
   return request<TokenResponse>('/api/v1/auth/login', {
     method: 'POST',
     body: JSON.stringify({
-    identifier: dto.identifier,
+      identifier: dto.identifier,
       password: dto.password,
     }),
   })
