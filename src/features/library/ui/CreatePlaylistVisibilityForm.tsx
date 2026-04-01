@@ -1,14 +1,14 @@
 'use client'
 
-import { useState } from 'react'
-import { visibilityOptions } from '@/features/library/model/create-playlist.constants'
+import { useCreatePlaylistStore } from '@/features/library/model/create-playlist.store'
 import type { PlaylistVisibility } from '@/features/library/model/create-playlist.types'
+import { visibilityOptions } from '@/features/library/model/create-playlist.constants'
 import { VisibilityOptionCard } from './VisibilityOptionCard'
 import { CreatePlaylistBottomAction } from './CreatePlaylistBottomAction'
 import { CreatePlaylistNextButton } from './CreatePlaylistNextButton'
 
 export function CreatePlaylistVisibilityForm() {
-  const [selected, setSelected] = useState<PlaylistVisibility | null>(null)
+  const { visibility, setVisibility } = useCreatePlaylistStore()
 
   return (
     <>
@@ -29,16 +29,16 @@ export function CreatePlaylistVisibilityForm() {
             title={option.title}
             description={option.description}
             icon={option.icon}
-            selected={selected === option.id}
-            onSelect={() => setSelected(option.id)}
+            selected={visibility === option.id}
+            onSelect={() => setVisibility(option.id as PlaylistVisibility)}
           />
         ))}
       </div>
 
       <CreatePlaylistBottomAction className="pt-[220px]">
         <CreatePlaylistNextButton
-          href="/library"
-          disabled={!selected}
+          href="/library/create-playlist/review"
+          disabled={!visibility}
         />
       </CreatePlaylistBottomAction>
     </>

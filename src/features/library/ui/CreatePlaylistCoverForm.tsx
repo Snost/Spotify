@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { HexColorPicker } from 'react-colorful'
 import { DownloadLibIcon } from '@/shared/ui/icons/DownloadLibIcon'
 import { EyedropperIcon } from '@/shared/ui/icons/EyedropperIcon'
+import { useCreatePlaylistStore } from '@/features/library/model/create-playlist.store'
 import { CreatePlaylistBottomAction } from './CreatePlaylistBottomAction'
 import { CreatePlaylistNextButton } from './CreatePlaylistNextButton'
 
@@ -16,14 +17,24 @@ const coverColors = [
 ] as const
 
 export function CreatePlaylistCoverForm() {
-  const [selectedColor, setSelectedColor] = useState<string>(coverColors[0])
-  const [isCoverSelected, setIsCoverSelected] = useState(false)
+  const {
+    coverColor,
+    coverFile,
+    setCoverColor,
+    setCoverFile,
+  } = useCreatePlaylistStore()
+
+  const [isCoverSelected, setIsCoverSelected] = useState(
+    Boolean(coverColor || coverFile)
+  )
   const [isPickerOpen, setIsPickerOpen] = useState(false)
-  const [uploadedImageName, setUploadedImageName] = useState('')
-  const [isUploadSelected, setIsUploadSelected] = useState(false)
+  const [uploadedImageName, setUploadedImageName] = useState(
+    coverFile?.name ?? ''
+  )
+  const [isUploadSelected, setIsUploadSelected] = useState(Boolean(coverFile))
 
   const isPresetColor = coverColors.includes(
-    selectedColor as (typeof coverColors)[number]
+    coverColor as (typeof coverColors)[number]
   )
 
   return (
@@ -55,10 +66,18 @@ export function CreatePlaylistCoverForm() {
         </p>
 
         <div className="mt-[14px] flex justify-center">
-          <div
-            className="h-[120px] w-[120px] rounded-[18px] transition-colors duration-200"
-            style={{ backgroundColor: selectedColor }}
-          />
+          {coverFile ? (
+            <img
+              src={URL.createObjectURL(coverFile)}
+              alt="Cover preview"
+              className="h-[120px] w-[120px] rounded-[18px] object-cover"
+            />
+          ) : (
+            <div
+              className="h-[120px] w-[120px] rounded-[18px] transition-colors duration-200"
+              style={{ backgroundColor: coverColor }}
+            />
+          )}
         </div>
 
         <div className="mt-[14px] text-[16px] font-medium leading-[19px] text-groov-accent">
@@ -67,14 +86,17 @@ export function CreatePlaylistCoverForm() {
 
         <div className="mt-[10px] grid grid-cols-3 gap-[8px]">
           {coverColors.map((color) => {
-            const isSelected = selectedColor === color
+            const isSelected = coverColor === color && !coverFile
 
             return (
               <button
                 key={color}
                 type="button"
                 onClick={() => {
-                  setSelectedColor(color)
+                  setCoverColor(color)
+                  setCoverFile(null)
+                  setUploadedImageName('')
+                  setIsUploadSelected(false)
                   setIsCoverSelected(true)
                   setIsPickerOpen(false)
                 }}
@@ -91,9 +113,12 @@ export function CreatePlaylistCoverForm() {
             onClick={() => {
               setIsPickerOpen((prev) => !prev)
               setIsCoverSelected(true)
+              setCoverFile(null)
+              setUploadedImageName('')
+              setIsUploadSelected(false)
             }}
             className={`flex h-[111px] items-center justify-center rounded-[16px] border-2 bg-[#8DA3C0] text-groov-accent transition-all duration-200 active:scale-[0.97] ${
-              !isPresetColor && isCoverSelected
+              !isPresetColor && isCoverSelected && !coverFile
                 ? 'border-groov-accent'
                 : 'border-transparent'
             }`}
@@ -105,9 +130,12 @@ export function CreatePlaylistCoverForm() {
         {isPickerOpen && (
           <div className="mt-[12px] rounded-[12px] bg-groov-bg/40 p-[10px]">
             <HexColorPicker
-              color={selectedColor}
+              color={coverColor}
               onChange={(color) => {
-                setSelectedColor(color)
+                setCoverColor(color)
+                setCoverFile(null)
+                setUploadedImageName('')
+                setIsUploadSelected(false)
                 setIsCoverSelected(true)
               }}
               className="!w-full"
@@ -117,10 +145,10 @@ export function CreatePlaylistCoverForm() {
               <div className="flex items-center gap-[8px]">
                 <div
                   className="h-[28px] w-[28px] rounded-full border border-groov-accent/30"
-                  style={{ backgroundColor: selectedColor }}
+                  style={{ backgroundColor: coverColor }}
                 />
                 <span className="text-[14px] leading-[17px] text-groov-accent/80">
-                  {selectedColor.toUpperCase()}
+                  {coverColor.toUpperCase()}
                 </span>
               </div>
 
@@ -173,8 +201,11 @@ export function CreatePlaylistCoverForm() {
           onChange={(e) => {
             const file = e.target.files?.[0]
             if (!file) return
+            setCoverFile(file)
             setUploadedImageName(file.name)
             setIsUploadSelected(true)
+            setIsCoverSelected(true)
+            setIsPickerOpen(false)
           }}
         />
 
@@ -187,8 +218,8 @@ export function CreatePlaylistCoverForm() {
       </div>
 
       <CreatePlaylistBottomAction className="pt-[24px]" bottomOffset={40}>
-  <CreatePlaylistNextButton href="/library/create-playlist/tracks" />
-</CreatePlaylistBottomAction>
+        <CreatePlaylistNextButton href="/library/create-playlist/tracks" />
+      </CreatePlaylistBottomAction>
     </>
   )
 }

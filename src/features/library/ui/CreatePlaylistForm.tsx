@@ -1,12 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useCreatePlaylistStore } from '@/features/library/model/create-playlist.store'
 import { CreatePlaylistBottomAction } from './CreatePlaylistBottomAction'
 import { CreatePlaylistNextButton } from './CreatePlaylistNextButton'
 
 export function CreatePlaylistForm() {
-  const [name, setName] = useState('')
-  const [description, setDescription] = useState('')
+  const { name, description, setName, setDescription } =
+    useCreatePlaylistStore()
 
   const isNextDisabled = name.trim().length === 0
 

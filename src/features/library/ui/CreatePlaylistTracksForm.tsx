@@ -1,16 +1,14 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+import {
+  useCreatePlaylistStore,
+  type PlaylistTrack,
+} from '@/features/library/model/create-playlist.store'
 import { CreatePlaylistBottomAction } from './CreatePlaylistBottomAction'
 import { CreatePlaylistNextButton } from './CreatePlaylistNextButton'
 
-type TrackItem = {
-  id: string
-  title: string
-  artist: string
-  duration: string
-  cover: string
-}
+type TrackItem = PlaylistTrack
 
 const tracksMock: TrackItem[] = [
   {
@@ -208,9 +206,13 @@ function TrackRow({ track, checked, onToggle }: TrackRowProps) {
 }
 
 export function CreatePlaylistTracksForm() {
+  const { tracks, setTracks } = useCreatePlaylistStore()
+
   const [query, setQuery] = useState('')
-  const [selectedIds, setSelectedIds] = useState<string[]>([])
   const [visibleCount, setVisibleCount] = useState(8)
+  const [selectedIds, setSelectedIds] = useState<string[]>(
+    tracks.map((track) => track.id)
+  )
 
   const filteredTracks = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase()
@@ -229,6 +231,13 @@ export function CreatePlaylistTracksForm() {
   useEffect(() => {
     setVisibleCount(8)
   }, [query])
+
+  useEffect(() => {
+    const selectedTracks = tracksMock.filter((track) =>
+      selectedIds.includes(track.id)
+    )
+    setTracks(selectedTracks)
+  }, [selectedIds, setTracks])
 
   const toggleTrack = (trackId: string) => {
     setSelectedIds((prev) =>
@@ -291,7 +300,11 @@ export function CreatePlaylistTracksForm() {
         </button>
       )}
 
-      <CreatePlaylistBottomAction mode="sticky"  className="pt-[24px]" bottomOffset={40}>
+      <CreatePlaylistBottomAction
+        mode="sticky"
+        className="pt-[24px]"
+        bottomOffset={40}
+      >
         <CreatePlaylistNextButton
           href="/library/create-playlist/visibility"
           disabled={!hasSelectedTracks}
