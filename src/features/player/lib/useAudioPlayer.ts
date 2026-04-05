@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react'
 import { usePlaybackQuery, usePlaybackQueueQuery } from '@/features/player/api/usePlaybackQueries'
 import { usePlaybackActions } from '@/features/player/api/usePlaybackActions'
-import { usePlayerStore } from '@/features/player/model/player.store'
+import { usePlayerStore } from '@/features/player/model/usePlayerStore'
 
 export function useAudioPlayer() {
   const audioRef = useRef<HTMLAudioElement | null>(null)

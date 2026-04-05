@@ -17,7 +17,7 @@ import {
   togglePlaybackShuffle,
 } from '@/shared/api/playback'
 import { getOrCreateDeviceId } from '@/shared/lib/device/getOrCreateDeviceId'
-import { usePlayerStore } from '@/features/player/model/player.store'
+import { usePlayerStore } from '@/features/player/model/usePlayerStore'
 import type { PlaybackContextType } from '@/entities/playback/model/types'
 
 export function usePlaybackActions() {

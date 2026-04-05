@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react'
 import { usePlaybackActions } from '@/features/player/api/usePlaybackActions'
-import { usePlayerStore } from '@/features/player/model/player.store'
+import { usePlayerStore } from '@/features/player/model/usePlayerStore'
 
 export function usePlayerControls() {
   const { playback, queue, isBlockedByAnotherDevice, isLoading } = usePlayerStore()
