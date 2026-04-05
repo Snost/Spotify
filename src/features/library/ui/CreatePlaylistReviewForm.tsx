@@ -41,12 +41,13 @@ export function CreatePlaylistReviewForm() {
   const handleCreatePlaylist = async () => {
     try {
       const result = await createPlaylistMutation.mutateAsync({
-        name: name || 'Без назви',
-        description: description || null,
-        isPublic: visibility === 'public',
-        trackIds: tracks.map((track) => track.id),
-        coverFile,
-      })
+  name: name || 'Без назви',
+  description: description || null,
+  isPublic: visibility === 'public',
+  trackIds: tracks.map((track) => track.id),
+  coverFile,
+  coverColor,
+})
 
       reset()
       router.push(`/playlist/${result.playlistId}`)

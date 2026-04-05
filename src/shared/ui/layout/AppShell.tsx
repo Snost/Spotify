@@ -102,9 +102,11 @@ export function AppShell({
         </div>
       </div>
 
-      <div className="lg:hidden">
-        <BottomNav />
-      </div>
+           {withBottomNavSpacing && (
+        <div className="lg:hidden">
+          <BottomNav />
+        </div>
+      )}
     </div>
   )
 }

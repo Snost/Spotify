@@ -41,3 +41,30 @@ export type PlayerTrack = {
   albumId: string | null
   audioFileId: string | null
 }
+
+export function mapTrackDtoToPlayerTrack(dto: {
+  id: string
+  title: string
+  duration: number | null
+  containsExplicitContent: boolean
+  albumId: string | null
+  audioFileId: string | null
+  mainArtists?: { name: string }[]
+  featuredArtists?: { name: string }[]
+}): PlayerTrack {
+  const main = dto.mainArtists?.map((artist) => artist.name) ?? []
+  const featured = dto.featuredArtists?.map((artist) => artist.name) ?? []
+  const artistName = [...main, ...featured].join(', ') || 'Unknown artist'
+
+  return {
+    id: dto.id,
+    title: dto.title,
+    artistName,
+    durationSeconds: dto.duration ?? 0,
+    containsExplicitContent: dto.containsExplicitContent,
+    coverUrl: null,
+    audioUrl: null,
+    albumId: dto.albumId,
+    audioFileId: dto.audioFileId,
+  }
+}

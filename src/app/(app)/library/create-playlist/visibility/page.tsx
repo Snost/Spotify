@@ -5,6 +5,7 @@ import { CreatePlaylistVisibilityForm } from '@/features/library/ui/CreatePlayli
 export default function CreatePlaylistVisibilityPage() {
   return (
     <AppShell
+     withBottomNavSpacing={false}
       withDefaultPadding={false}
       pageMode="screen"  >
       <div className="min-h-dvh bg-groov-bg px-[16px] pt-[10px] text-groov-accent">

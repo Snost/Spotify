@@ -1,9 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
-import {
-  addTrackToPlaylist,
-  createPlaylist,
-  updatePlaylist,
-} from '@/shared/api/playlists'
+import { createPlaylist, updatePlaylist } from '@/shared/api/playlists'
+import { useLibraryPlaylistsStore } from '@/features/library/model/useLibraryPlaylistsStore'
 
 type CreatePlaylistInput = {
   name: string
@@ -11,6 +8,7 @@ type CreatePlaylistInput = {
   isPublic: boolean
   trackIds: string[]
   coverFile?: File | null
+  coverColor?: string
 }
 
 export function useCreatePlaylist() {
@@ -20,6 +18,7 @@ export function useCreatePlaylist() {
       description,
       isPublic,
       trackIds,
+      coverColor,
     }: CreatePlaylistInput) => {
       const created = await createPlaylist()
       const playlistId = created.playlistId
@@ -30,11 +29,20 @@ export function useCreatePlaylist() {
         isPublic,
       })
 
-      for (const trackId of trackIds) {
-        await addTrackToPlaylist(playlistId, { trackId })
+      return {
+        playlistId,
+        playlist: {
+          id: playlistId,
+          title: name,
+          subtitle: '@andrii_koval',
+          tracksCount: trackIds.length,
+          image: null,
+          color: coverColor ?? '#A78BCE',
+        },
       }
-
-      return { playlistId }
+    },
+    onSuccess: ({ playlist }) => {
+      useLibraryPlaylistsStore.getState().prependPlaylist(playlist)
     },
   })
 }
