@@ -1,12 +1,14 @@
 'use client'
 
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import { useMemo } from 'react'
 import { useAuthStore } from '@/shared/stores/auth.store'
 import { ProfileCompassIcon } from '@/shared/ui/icons/profile/ProfileCompassIcon'
 import { ProfileHeartIcon } from '@/shared/ui/icons/profile/ProfileHeartIcon'
 import { ProfileCalendarIcon } from '@/shared/ui/icons/profile/ProfileCalendarIcon'
 import { ProfileSettingsIcon } from '@/shared/ui/icons/profile/ProfileSettingsIcon'
+
 import {
   profileDiscoveryOfMonth,
   profileFavoriteArtists,
@@ -40,11 +42,11 @@ function ProfileStatCard({
   return (
     <div className="flex h-[72px] flex-1 flex-col items-center justify-center rounded-[12px] bg-groov-primary text-center">
       
-      <div className="text-[24px] leading-[24px] text-groov-accent">
+      <div className="text-[24px] leading-[24px]  ">
         {value}
       </div>
 
-      <div className="mt-[6px] text-[15px] leading-[14px] text-groov-accent">
+      <div className="mt-[6px] text-[15px] leading-[14px]  ">
         {label}
       </div>
 
@@ -68,7 +70,7 @@ function ProfileSectionHeader({
           {icon}
         </div>
 
-        <div className="text-[16px] font-semibold leading-[16px] text-groov-accent">
+        <div className="text-[16px] font-semibold leading-[16px]  ">
           {title}
         </div>
       </div>
@@ -113,8 +115,8 @@ function FavoriteArtistCard({
 
 export function ProfileScreen() {
   const displayNameFromStore = useAuthStore((s) => s.displayName)
-
-  const displayName = displayNameFromStore?.trim() || 'Андрій Коваль'
+const router = useRouter()
+  const displayName = displayNameFromStore?.trim() || 'Користувач'
   const username = useMemo(() => toUsername(displayName), [displayName])
   const initials = useMemo(() => getInitials(displayName), [displayName])
 
@@ -136,12 +138,14 @@ export function ProfileScreen() {
           <div className="absolute inset-0 bg-groov-bg/10" />
 
           <button
-            type="button"
-            className="absolute right-[16px] top-[max(env(safe-area-inset-top),20px)] rounded-full"
-            aria-label="Налаштування"
-          >
-            <ProfileSettingsIcon />
-          </button>
+  type="button"
+  onClick={() => router.push('/settings')}
+  className="absolute right-[16px] top-[max(env(safe-area-inset-top),20px)] rounded-full"
+  aria-label="Налаштування"
+>
+<div className="flex h-[44px] w-[44px] items-center justify-center rounded-full bg-groov-surface">
+  <ProfileSettingsIcon className="h-[28px] w-[28px] text-groov-accent" />
+</div></button>
         </div>
 
         <div className="absolute left-1/2 top-[131px] h-[150px] w-[150px] -translate-x-1/2 overflow-hidden rounded-full border-[4px] border-groov-surface bg-groov-accent shadow-[0_8px_24px_rgba(0,0,0,0.28)]">
@@ -151,7 +155,7 @@ export function ProfileScreen() {
             fill
             className="object-cover"
           />
-          <div className="hidden h-full w-full items-center justify-center bg-gradient-to-br from-groov-secondary to-groov-primary text-[30px] font-bold text-groov-accent">
+          <div className="hidden h-full w-full items-center justify-center bg-gradient-to-br from-groov-secondary to-groov-primary text-[30px] font-bold  ">
             {initials}
           </div>
         </div>
@@ -159,7 +163,7 @@ export function ProfileScreen() {
 
 <div className="px-[20px] pt-[90px]">
             <div className="text-center">
-          <div className="text-[24px] font-semibold leading-[22px] text-groov-accent">
+          <div className="text-[24px] font-semibold leading-[22px]  ">
             {displayName}
           </div>
 
@@ -167,7 +171,7 @@ export function ProfileScreen() {
             {username}
           </div>
 
-          <p className="mx-auto mt-[16px] max-w-[370px] text-center text-[16px] font-normal leading-[16px] tracking-[0px] text-groov-accent">
+          <p className="mx-auto mt-[16px] max-w-[370px] text-center text-[16px] font-normal leading-[16px] tracking-[0px]  ">
             {bio}
           </p>
         </div>
@@ -180,7 +184,7 @@ export function ProfileScreen() {
 
         <button
           type="button"
-          className="mt-[12px] flex h-[40px] w-full items-center justify-center rounded-[10px] bg-groov-surface text-[16px] font-medium leading-[14px] text-groov-accent"
+          className="mt-[12px] flex h-[40px] w-full items-center justify-center rounded-[10px] bg-groov-surface text-[16px] font-medium leading-[14px]  "
         >
           Поділитися профілем
         </button>
@@ -203,15 +207,15 @@ export function ProfileScreen() {
             </div>
 
             <div className="min-w-0 flex-1">
-              <div className="text-[16px] font-medium leading-[20px] text-groov-accent">
+              <div className="text-[16px] font-medium leading-[20px]  ">
                 {profileDiscoveryOfMonth.title}
               </div>
 
-              <div className="mt-[4px] text-[14px] font-medium leading-[14px] text-groov-accent">
+              <div className="mt-[4px] text-[14px] font-medium leading-[14px]  ">
                 {profileDiscoveryOfMonth.artist}
               </div>
 
-              <div className="mt-[10px] flex items-center gap-[8px] text-[14px] leading-[14px] text-groov-accent/90">
+              <div className="mt-[10px] flex items-center gap-[8px] text-[14px] leading-[14px]  /90">
                 <ProfileCalendarIcon />
                 <span>{profileDiscoveryOfMonth.discoveredAt}</span>
               </div>
