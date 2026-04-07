@@ -1,17 +1,26 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { usePlayerStore } from '@/features/player/model/usePlayerStore'
 
 type UseHlsAudioArgs = {
   url: string | null
   shouldPlay: boolean
-  volume: number // 0..100
+  volume: number
   onShouldPlayChange?: (v: boolean) => void
 }
 
-export function useHlsAudio({ url, shouldPlay, volume, onShouldPlayChange }: UseHlsAudioArgs) {
+export function useHlsAudio({
+  url,
+  shouldPlay,
+  volume,
+  onShouldPlayChange,
+}: UseHlsAudioArgs) {
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const hlsRef = useRef<any>(null)
+
+  const setCurrentTimeSec = usePlayerStore((state) => state.setCurrentTimeSec)
+  const setDurationSec = usePlayerStore((state) => state.setDurationSec)
 
   const [duration, setDuration] = useState(0)
   const [currentTime, setCurrentTime] = useState(0)
@@ -25,7 +34,6 @@ export function useHlsAudio({ url, shouldPlay, volume, onShouldPlayChange }: Use
     let disposed = false
     setError(null)
 
-    // cleanup previous
     if (hlsRef.current) {
       try {
         hlsRef.current.destroy()
@@ -37,16 +45,19 @@ export function useHlsAudio({ url, shouldPlay, volume, onShouldPlayChange }: Use
     audio.removeAttribute('src')
     audio.load()
 
+    setDuration(0)
+    setCurrentTime(0)
+    setDurationSec(0)
+    setCurrentTimeSec(0)
+
     if (!url) return
 
     const run = async () => {
-      // Apple native HLS
       if (audio.canPlayType('application/vnd.apple.mpegurl')) {
         audio.src = url
         return
       }
 
-      // ✅ dynamic import hls.js
       const mod = await import('hls.js')
       if (disposed) return
       const Hls = mod.default
@@ -77,7 +88,7 @@ export function useHlsAudio({ url, shouldPlay, volume, onShouldPlayChange }: Use
         hlsRef.current = null
       }
     }
-  }, [url])
+  }, [url, setCurrentTimeSec, setDurationSec])
 
   useEffect(() => {
     const audio = audioRef.current
@@ -99,6 +110,7 @@ export function useHlsAudio({ url, shouldPlay, volume, onShouldPlayChange }: Use
           onShouldPlayChange?.(false)
         }
       }
+
       if (!shouldPlay && !audio.paused) {
         audio.pause()
       }
@@ -110,13 +122,19 @@ export function useHlsAudio({ url, shouldPlay, volume, onShouldPlayChange }: Use
   const onLoadedMetadata = () => {
     const audio = audioRef.current
     if (!audio) return
-    setDuration(audio.duration || 0)
+
+    const nextDuration = audio.duration || 0
+    setDuration(nextDuration)
+    setDurationSec(nextDuration)
   }
 
   const onTimeUpdate = () => {
     const audio = audioRef.current
     if (!audio) return
-    setCurrentTime(audio.currentTime || 0)
+
+    const nextCurrentTime = audio.currentTime || 0
+    setCurrentTime(nextCurrentTime)
+    setCurrentTimeSec(nextCurrentTime)
 
     try {
       if (audio.duration && audio.buffered.length > 0) {
@@ -133,8 +151,10 @@ export function useHlsAudio({ url, shouldPlay, volume, onShouldPlayChange }: Use
   const seekTo = (seconds: number) => {
     const audio = audioRef.current
     if (!audio) return
+
     audio.currentTime = seconds
     setCurrentTime(seconds)
+    setCurrentTimeSec(seconds)
   }
 
   return {

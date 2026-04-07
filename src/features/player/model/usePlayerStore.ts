@@ -10,6 +10,8 @@ type PlayerStore = {
   currentStreamUrl: string | null
   currentTrackId: string | null
   startPositionMs: number | null
+  currentTimeSec: number
+  durationSec: number
   isLoading: boolean
   isPlayerReady: boolean
   isBlockedByAnotherDevice: boolean
@@ -19,6 +21,8 @@ type PlayerStore = {
   setCurrentStreamUrl: (url: string | null) => void
   setCurrentTrackId: (trackId: string | null) => void
   setStartPositionMs: (value: number | null) => void
+  setCurrentTimeSec: (value: number) => void
+  setDurationSec: (value: number) => void
   setIsLoading: (value: boolean) => void
   setIsPlayerReady: (value: boolean) => void
   setIsBlockedByAnotherDevice: (value: boolean) => void
@@ -32,6 +36,8 @@ export const usePlayerStore = create<PlayerStore>((set) => ({
   currentStreamUrl: null,
   currentTrackId: null,
   startPositionMs: null,
+  currentTimeSec: 0,
+  durationSec: 0,
   isLoading: false,
   isPlayerReady: false,
   isBlockedByAnotherDevice: false,
@@ -41,6 +47,8 @@ export const usePlayerStore = create<PlayerStore>((set) => ({
   setCurrentStreamUrl: (currentStreamUrl) => set({ currentStreamUrl }),
   setCurrentTrackId: (currentTrackId) => set({ currentTrackId }),
   setStartPositionMs: (startPositionMs) => set({ startPositionMs }),
+  setCurrentTimeSec: (currentTimeSec) => set({ currentTimeSec }),
+  setDurationSec: (durationSec) => set({ durationSec }),
   setIsLoading: (isLoading) => set({ isLoading }),
   setIsPlayerReady: (isPlayerReady) => set({ isPlayerReady }),
   setIsBlockedByAnotherDevice: (isBlockedByAnotherDevice) =>
@@ -53,6 +61,8 @@ export const usePlayerStore = create<PlayerStore>((set) => ({
       currentStreamUrl: null,
       currentTrackId: null,
       startPositionMs: null,
+      currentTimeSec: 0,
+      durationSec: 0,
       isLoading: false,
       isPlayerReady: false,
       isBlockedByAnotherDevice: false,

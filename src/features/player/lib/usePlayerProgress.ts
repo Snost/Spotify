@@ -4,57 +4,34 @@ import { useEffect, useMemo, useState } from 'react'
 import { usePlaybackActions } from '@/features/player/api/usePlaybackActions'
 import { usePlayerStore } from '@/features/player/model/usePlayerStore'
 
+function formatTime(totalSeconds: number) {
+  if (!Number.isFinite(totalSeconds) || totalSeconds < 0) {
+    return '0 : 00'
+  }
+
+  const minutes = Math.floor(totalSeconds / 60)
+  const seconds = Math.floor(totalSeconds % 60)
+
+  return `${minutes} : ${seconds.toString().padStart(2, '0')}`
+}
+
 export function usePlayerProgress() {
-  const { queue } = usePlayerStore()
+  const currentTrackId = usePlayerStore((state) => state.currentTrackId)
+  const currentTimeFromStore = usePlayerStore((state) => state.currentTimeSec)
+  const durationFromStore = usePlayerStore((state) => state.durationSec)
+
   const { seekPositionMutation } = usePlaybackActions()
 
-  const currentTrack = queue?.currentTrack ?? null
-  const durationMs = currentTrack?.duration ?? 0
-  const durationSec = durationMs > 0 ? durationMs / 1000 : 0
-
-  const [currentTimeSec, setCurrentTimeSec] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
   const [dragValueSec, setDragValueSec] = useState(0)
 
   useEffect(() => {
-    const audio = document.querySelector('audio')
-
-    if (!audio) {
-      return
-    }
-
-    const updateTime = () => {
-      if (!isDragging) {
-        setCurrentTimeSec(audio.currentTime)
-      }
-    }
-
-    const handleLoadedMetadata = () => {
-      if (!isDragging) {
-        setCurrentTimeSec(audio.currentTime)
-      }
-    }
-
-    updateTime()
-
-    audio.addEventListener('timeupdate', updateTime)
-    audio.addEventListener('loadedmetadata', handleLoadedMetadata)
-    audio.addEventListener('seeked', updateTime)
-
-    return () => {
-      audio.removeEventListener('timeupdate', updateTime)
-      audio.removeEventListener('loadedmetadata', handleLoadedMetadata)
-      audio.removeEventListener('seeked', updateTime)
-    }
-  }, [isDragging])
-
-  useEffect(() => {
-    setCurrentTimeSec(0)
-    setDragValueSec(0)
     setIsDragging(false)
-  }, [currentTrack?.id])
+    setDragValueSec(0)
+  }, [currentTrackId])
 
-  const displayedTimeSec = isDragging ? dragValueSec : currentTimeSec
+  const displayedTimeSec = isDragging ? dragValueSec : currentTimeFromStore
+  const durationSec = durationFromStore > 0 ? durationFromStore : 0
 
   const progressPercent = useMemo(() => {
     if (!durationSec || durationSec <= 0) {
@@ -80,22 +57,10 @@ export function usePlayerProgress() {
       audio.currentTime = nextValueSec
     }
 
-    setCurrentTimeSec(nextValueSec)
     setDragValueSec(nextValueSec)
     setIsDragging(false)
 
     await seekPositionMutation.mutateAsync(nextValueMs)
-  }
-
-  const formatTime = (totalSeconds: number) => {
-    if (!Number.isFinite(totalSeconds) || totalSeconds < 0) {
-      return '0 : 00'
-    }
-
-    const minutes = Math.floor(totalSeconds / 60)
-    const seconds = Math.floor(totalSeconds % 60)
-
-    return `${minutes} : ${seconds.toString().padStart(2, '0')}`
   }
 
   return {

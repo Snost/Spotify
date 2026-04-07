@@ -70,9 +70,7 @@ export function TrackPlayToggle({
     disabled || isLoading || isBlockedByAnotherDevice || isPending || !trackId
 
   const handleClick = async () => {
-    if (isDisabled) {
-      return
-    }
+    if (isDisabled) return
 
     if (isCurrentTrack) {
       if (isPlaying) {

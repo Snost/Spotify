@@ -34,18 +34,23 @@ export function usePlaybackActions() {
 
   const refreshPlaybackState = async () => {
     const [playback, queue] = await Promise.all([
-      queryClient.fetchQuery({
-        queryKey: ['playback'],
-        queryFn: getPlayback,
-      }),
-      queryClient.fetchQuery({
-        queryKey: ['playback-queue'],
-        queryFn: getPlaybackQueue,
-      }),
+      getPlayback().catch(() => null),
+      getPlaybackQueue().catch(() => null),
     ])
 
     setPlayback(playback ?? null)
     setQueue(queue ?? null)
+
+    if (playback?.trackId) {
+      setCurrentTrackId(playback.trackId)
+    } else {
+      setCurrentTrackId(queue?.currentTrack?.id ?? null)
+    }
+
+    await queryClient.setQueryData(['playback'], playback)
+    await queryClient.setQueryData(['playback-queue'], queue)
+
+    return { playback, queue }
   }
 
   const startPlaybackMutation = useMutation({
@@ -71,10 +76,11 @@ export function usePlaybackActions() {
 
       setCurrentStreamUrl(streamUrl)
       setCurrentTrackId(data.trackId ?? null)
-      setStartPositionMs(data.startPositionMs ?? 0)
+      setStartPositionMs(
+        data.startPositionMs == null ? 0 : Number(data.startPositionMs)
+      )
 
-      await queryClient.invalidateQueries({ queryKey: ['playback'] })
-      await queryClient.invalidateQueries({ queryKey: ['playback-queue'] })
+      await refreshPlaybackState()
     },
     onSettled: () => {
       setIsLoading(false)
@@ -87,7 +93,7 @@ export function usePlaybackActions() {
       return pausePlayback({ deviceId })
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['playback'] })
+      await refreshPlaybackState()
     },
   })
 
@@ -97,7 +103,7 @@ export function usePlaybackActions() {
       return resumePlayback({ deviceId })
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['playback'] })
+      await refreshPlaybackState()
     },
   })
 
@@ -111,10 +117,11 @@ export function usePlaybackActions() {
 
       setCurrentStreamUrl(streamUrl)
       setCurrentTrackId(data.trackId ?? null)
-      setStartPositionMs(data.startPositionMs ?? 0)
+      setStartPositionMs(
+        data.startPositionMs == null ? 0 : Number(data.startPositionMs)
+      )
 
-      await queryClient.invalidateQueries({ queryKey: ['playback'] })
-      await queryClient.invalidateQueries({ queryKey: ['playback-queue'] })
+      await refreshPlaybackState()
     },
   })
 
@@ -128,10 +135,11 @@ export function usePlaybackActions() {
 
       setCurrentStreamUrl(streamUrl)
       setCurrentTrackId(data.trackId ?? null)
-      setStartPositionMs(data.startPositionMs ?? 0)
+      setStartPositionMs(
+        data.startPositionMs == null ? 0 : Number(data.startPositionMs)
+      )
 
-      await queryClient.invalidateQueries({ queryKey: ['playback'] })
-      await queryClient.invalidateQueries({ queryKey: ['playback-queue'] })
+      await refreshPlaybackState()
     },
   })
 
@@ -141,8 +149,7 @@ export function usePlaybackActions() {
       return togglePlaybackShuffle({ deviceId })
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['playback'] })
-      await queryClient.invalidateQueries({ queryKey: ['playback-queue'] })
+      await refreshPlaybackState()
     },
   })
 
@@ -152,7 +159,7 @@ export function usePlaybackActions() {
       return togglePlaybackRepeat({ deviceId })
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['playback'] })
+      await refreshPlaybackState()
     },
   })
 
@@ -161,7 +168,7 @@ export function usePlaybackActions() {
       return addTrackToPlaybackQueue({ trackId })
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['playback-queue'] })
+      await refreshPlaybackState()
     },
   })
 
@@ -170,7 +177,7 @@ export function usePlaybackActions() {
       return removeTrackFromPlaybackQueue(trackId)
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['playback-queue'] })
+      await refreshPlaybackState()
     },
   })
 
@@ -187,7 +194,7 @@ export function usePlaybackActions() {
       return seekPlaybackPosition({ deviceId, positionMs })
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['playback'] })
+      await refreshPlaybackState()
     },
   })
 

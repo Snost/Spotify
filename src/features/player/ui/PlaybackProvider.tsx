@@ -1,15 +1,19 @@
 'use client'
 
-import type { PropsWithChildren } from 'react'
-import { useAudioPlayer } from '@/features/player/lib/useAudioPlayer'
+import React from 'react'
+import { TrackPlayer } from '@/features/player/ui/TrackPlayer'
+import { GlobalPlayerBar } from '@/features/player/ui/GlobalPlayerBar'
 
-export function PlaybackProvider({ children }: PropsWithChildren) {
-  const { audioRef } = useAudioPlayer()
+type Props = {
+  children: React.ReactNode
+}
 
+export function PlaybackProvider({ children }: Props) {
   return (
     <>
+      <TrackPlayer />
+      <GlobalPlayerBar />
       {children}
-      <audio ref={audioRef} preload="metadata" style={{ display: 'none' }} />
     </>
   )
 }
