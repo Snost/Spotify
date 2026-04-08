@@ -15,7 +15,7 @@ import { TrackPlayToggle } from '@/features/player/ui/TrackPlayToggle'
 import { usePlayerStore } from '@/features/player/model/usePlayerStore'
 import { usePlayerControls } from '@/features/player/lib/usePlayerControls'
 import { usePlayerProgress } from '@/features/player/lib/usePlayerProgress'
-
+import { useCurrentTrackDetails } from '@/features/player/api/useCurrentTrackDetails'
 export function TrackPlayerScreen() {
   const router = useRouter()
 
@@ -23,6 +23,12 @@ export function TrackPlayerScreen() {
   const playback = usePlayerStore((state) => state.playback)
 
   const currentTrack = queue?.currentTrack ?? null
+  const { data: currentTrackDetails } = useCurrentTrackDetails(currentTrack?.id ?? null)
+
+const artistLabel =
+  currentTrackDetails?.mainArtists?.length
+    ? currentTrackDetails.mainArtists.map((artist) => artist.name).join(', ')
+    : currentTrack?.mainArtists?.join(', ') || 'Unknown artist'
 
   const {
     isShuffled,
@@ -114,11 +120,14 @@ export function TrackPlayerScreen() {
         </IconButton>
 
         <IconButton
-          aria-label="Меню"
-          className="flex h-[24px] w-[24px] items-center justify-center p-0 text-groov-accent"
-        >
-          <MoreIcon />
-        </IconButton>
+  aria-label="Меню"
+  onClick={() => {
+    router.push('/player/options')
+  }}
+  className="flex h-[24px] w-[24px] items-center justify-center p-0 text-groov-accent"
+>
+  <MoreIcon />
+</IconButton>
       </div>
 
       <div className="px-[16px] pt-[24px]">
@@ -135,31 +144,31 @@ export function TrackPlayerScreen() {
         </div>
 
         <div className="mt-[20px] flex items-start justify-between">
-          <div className="min-w-0">
-            <h1 className="max-w-[280px] truncate text-[23px] font-normal leading-[1.15] text-groov-accent">
-              {currentTrack.title}
-            </h1>
+  <div className="min-w-0">
+    <h1 className="max-w-[280px] truncate text-[23px] font-normal leading-[1.15] text-groov-accent">
+      {currentTrack.title}
+    </h1>
 
-            <p className="mt-[10px] max-w-[280px] truncate text-[16px] font-normal leading-[1.2] text-groov-muted">
-              {currentTrack.mainArtists?.join(', ') || 'Unknown artist'}
-            </p>
-          </div>
+    <p className="mt-[10px] max-w-[280px] truncate text-[16px] font-normal leading-[1.2] text-groov-muted">
+      {artistLabel}
+    </p>
+  </div>
 
-          <button
-            type="button"
-            aria-label={isLiked ? 'Прибрати з улюблених' : 'Додати в улюблені'}
-            onClick={handleToggleLike}
-            className="mt-[3px] flex h-[24px] w-[24px] items-center justify-center"
-          >
-            <HeartIcon
-              filled={isLiked}
-              className={[
-                'h-[24px] w-[24px] origin-center text-groov-accent transition-all duration-200 ease-out',
-                isHeartAnimating ? 'animate-heart-pop' : '',
-              ].join(' ')}
-            />
-          </button>
-        </div>
+  <button
+    type="button"
+    aria-label={isLiked ? 'Прибрати з улюблених' : 'Додати в улюблені'}
+    onClick={handleToggleLike}
+    className="mt-[3px] flex h-[24px] w-[24px] items-center justify-center"
+  >
+    <HeartIcon
+      filled={isLiked}
+      className={[
+        'h-[24px] w-[24px] origin-center text-groov-accent transition-all duration-200 ease-out',
+        isHeartAnimating ? 'animate-heart-pop' : '',
+      ].join(' ')}
+    />
+  </button>
+</div>
 
         <div className="mt-[30px]">
           <div

@@ -10,7 +10,7 @@ export function TrackPlayer() {
   const audioFallbackRef = useRef<HTMLAudioElement | null>(null)
   const lastSyncedSecondRef = useRef<number>(-1)
   const appliedStartPositionRef = useRef(false)
-
+const currentTrackId = usePlayerStore((state) => state.currentTrackId)
   const currentStreamUrl = usePlayerStore((state) => state.currentStreamUrl)
   const playback = usePlayerStore((state) => state.playback)
   const startPositionMs = usePlayerStore((state) => state.startPositionMs)
@@ -137,19 +137,23 @@ export function TrackPlayer() {
       }
     }
 
-    const handleTime = () => {
-      onTimeUpdate()
+const handleTime = () => {
+  onTimeUpdate()
 
-      const seconds = Number.isFinite(audio.currentTime) ? audio.currentTime : 0
-      setCurrentTimeSec(seconds)
+  const seconds = Number.isFinite(audio.currentTime) ? audio.currentTime : 0
+  setCurrentTimeSec(seconds)
 
-      const wholeSecond = Math.floor(seconds)
+  const wholeSecond = Math.floor(seconds)
 
-      if (wholeSecond !== lastSyncedSecondRef.current) {
-        lastSyncedSecondRef.current = wholeSecond
-        void syncPositionMutation.mutateAsync(Math.floor(seconds * 1000))
-      }
-    }
+  if (!playback?.isPlaying || !currentStreamUrl || !currentTrackId) {
+    return
+  }
+
+  if (wholeSecond !== lastSyncedSecondRef.current) {
+    lastSyncedSecondRef.current = wholeSecond
+    void syncPositionMutation.mutateAsync(Math.floor(seconds * 1000))
+  }
+}
 
     const handleEnded = async () => {
       try {

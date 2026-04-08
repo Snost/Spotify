@@ -127,14 +127,23 @@ function ProfileIcon(active: boolean) {
   );
 }
 
+const ROOT_PATHS = new Set([
+  "/home",
+  "/search",
+  "/premium",
+  "/library",
+  "/profile",
+]);
+
 export function BottomNav() {
   const pathname = usePathname();
   const hasPremium = usePremiumStore((state) => state.hasPremium);
 
-  const isActive = (href: string) => {
-    if (href === "/home") return pathname === "/home";
-    return pathname.startsWith(href);
-  };
+  if (!pathname || !ROOT_PATHS.has(pathname)) {
+    return null;
+  }
+
+  const isActive = (href: string) => pathname === href;
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 flex h-[78px] w-full items-start bg-groov-bg px-4 pb-[10px] pt-[8px]">

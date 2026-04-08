@@ -56,7 +56,7 @@ export default function HomePage() {
       <div className="lg:hidden">
         <SectionBlock>
           <SectionHeader title="Нещодавно слухали" href="/recent" />
-          <HScroll items={recently} hrefPrefix="/play" />
+<HScroll items={recently} />
         </SectionBlock>
 
         <SectionBlock>
