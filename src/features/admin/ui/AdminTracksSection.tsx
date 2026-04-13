@@ -1,16 +1,17 @@
 'use client'
 
 import { AdminMusicNoteIcon } from '@/shared/ui/icons/settings/AdminMusicNoteIcon'
-import type { AdminTrackItem } from '@/features/admin/api/admin.types'
+import { useAdminTracks } from '@/features/admin/api/useAdminTracks'
 import { AdminTracksEmptyState } from './AdminTracksEmptyState'
 import { AdminTracksList } from './AdminTracksList'
 
 type Props = {
-  tracks: AdminTrackItem[]
   onUploadClick: () => void
 }
 
-export function AdminTracksSection({ tracks, onUploadClick }: Props) {
+export function AdminTracksSection({ onUploadClick }: Props) {
+  const { data: tracks = [], isLoading, isError } = useAdminTracks()
+
   return (
     <>
       <div className="mt-[18px] flex items-center gap-[12px]">
@@ -23,7 +24,15 @@ export function AdminTracksSection({ tracks, onUploadClick }: Props) {
         </h2>
       </div>
 
-      {tracks.length === 0 ? (
+      {isLoading ? (
+        <div className="mt-[16px] rounded-[14px] bg-groov-surface px-[14px] py-[14px] text-[14px] leading-[17px] text-groov-accent">
+          Завантаження треків...
+        </div>
+      ) : isError ? (
+        <div className="mt-[16px] rounded-[14px] bg-groov-surface px-[14px] py-[14px] text-[14px] leading-[17px] text-groov-accent">
+          Не вдалося завантажити треки
+        </div>
+      ) : tracks.length === 0 ? (
         <AdminTracksEmptyState onUploadClick={onUploadClick} />
       ) : (
         <AdminTracksList tracks={tracks} />

@@ -16,7 +16,6 @@ export function AdminContent({ activeTab, onTabChange }: Props) {
   if (activeTab === 'tracks') {
     return (
       <AdminTracksSection
-        tracks={adminTracksMock}
         onUploadClick={() => onTabChange('upload')}
       />
     )
