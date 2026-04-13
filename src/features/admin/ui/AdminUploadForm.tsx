@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
 import { ChevronDownIcon } from '@/shared/ui/icons/ChevronDownIcon'
 import {
   createAlbum,
@@ -14,10 +14,17 @@ import {
   uploadTrackAudio,
 } from '@/features/admin/api/admin.api'
 
-export function AdminUploadForm() {
+type Props = {
+  audioFile: File | null
+  onClearAudioFile: () => void
+}
+
+export function AdminUploadForm({
+  audioFile,
+  onClearAudioFile,
+}: Props) {
   const queryClient = useQueryClient()
 
-  const [audioFile, setAudioFile] = useState<File | null>(null)
   const [trackTitle, setTrackTitle] = useState('')
   const [selectedArtistId, setSelectedArtistId] = useState('')
   const [selectedGenreId, setSelectedGenreId] = useState('')
@@ -25,7 +32,6 @@ export function AdminUploadForm() {
   const [isArtistOpen, setIsArtistOpen] = useState(false)
   const [isGenreOpen, setIsGenreOpen] = useState(false)
   const [isMoodOpen, setIsMoodOpen] = useState(false)
-  const [isExplicit, setIsExplicit] = useState(false)
   const [submitMessage, setSubmitMessage] = useState('')
 
   const { data: artistsData } = useQuery({
@@ -69,11 +75,10 @@ export function AdminUploadForm() {
     setSelectedArtistId('')
     setSelectedGenreId('')
     setSelectedMoodId('')
-    setAudioFile(null)
-    setIsExplicit(false)
     setIsArtistOpen(false)
     setIsGenreOpen(false)
     setIsMoodOpen(false)
+    onClearAudioFile()
   }
 
   const handleSelectArtist = (artistId: string) => {
@@ -120,7 +125,7 @@ export function AdminUploadForm() {
 
       const track = await createTrack({
         title: trackTitle.trim(),
-        containsExplicitContent: isExplicit,
+        containsExplicitContent: false,
         albumId: album.albumId,
         mainArtists: [selectedArtist.id],
         featuredArtists: [],
@@ -304,39 +309,6 @@ export function AdminUploadForm() {
             </div>
           ) : null}
         </div>
-      </div>
-
-      <div className="mt-[16px]">
-        <label className="flex items-center gap-[10px] text-[14px] font-medium leading-[17px] text-groov-accent">
-          <input
-            type="checkbox"
-            checked={isExplicit}
-            onChange={(e) => setIsExplicit(e.target.checked)}
-            className="h-[16px] w-[16px]"
-          />
-          Explicit content
-        </label>
-      </div>
-
-      <div className="mt-[16px]">
-        <label className="block">
-          <span className="text-[14px] font-medium leading-[17px] text-groov-accent">
-            Аудіофайл
-          </span>
-
-          <input
-            type="file"
-            accept=".mp3,.wav,.flac,.m4a,.aac,audio/*"
-            onChange={(e) => setAudioFile(e.target.files?.[0] ?? null)}
-            className="mt-[10px] block w-full text-[14px] text-groov-accent"
-          />
-        </label>
-
-        {audioFile ? (
-          <p className="mt-[8px] text-[12px] leading-[14px] text-groov-accent/80">
-            Обрано: {audioFile.name}
-          </p>
-        ) : null}
       </div>
 
       <button
