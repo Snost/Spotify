@@ -33,7 +33,10 @@ function normalizeTrack(track: TrackDetailsDto): PlayerTrack {
     artistName: getArtistName(track),
     durationSeconds: normalizeDuration(track.duration),
     containsExplicitContent: track.containsExplicitContent,
-    coverUrl: null,
+    coverUrl:
+      'coverUrl' in track && typeof track.coverUrl === 'string'
+        ? track.coverUrl
+        : null,
     audioUrl: null,
     albumId: track.albumId,
     audioFileId: track.audioFileId,

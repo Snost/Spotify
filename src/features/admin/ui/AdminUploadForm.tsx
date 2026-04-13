@@ -9,6 +9,7 @@ import {
   getArtists,
   getGenres,
   getMoods,
+  getMyTracks,
   getTracks,
   uploadTrackAudio,
 } from '@/features/admin/api/admin.api'
@@ -16,6 +17,7 @@ import {
 export function AdminUploadForm() {
   const queryClient = useQueryClient()
 
+  const [audioFile, setAudioFile] = useState<File | null>(null)
   const [trackTitle, setTrackTitle] = useState('')
   const [selectedArtistId, setSelectedArtistId] = useState('')
   const [selectedGenreId, setSelectedGenreId] = useState('')
@@ -23,7 +25,6 @@ export function AdminUploadForm() {
   const [isArtistOpen, setIsArtistOpen] = useState(false)
   const [isGenreOpen, setIsGenreOpen] = useState(false)
   const [isMoodOpen, setIsMoodOpen] = useState(false)
-  const [audioFile, setAudioFile] = useState<File | null>(null)
   const [isExplicit, setIsExplicit] = useState(false)
   const [submitMessage, setSubmitMessage] = useState('')
 
@@ -47,14 +48,33 @@ export function AdminUploadForm() {
     queryFn: getTracks,
   })
 
-const artists = artistsData ?? []
+  useQuery({
+    queryKey: ['admin-my-tracks'],
+    queryFn: getMyTracks,
+  })
+
+  const artists = artistsData ?? []
   const genres = genresData ?? []
   const moods = moodsData ?? []
 
   const selectedArtist =
     artists.find((artist) => artist.id === selectedArtistId) ?? null
-  const selectedGenre = genres.find((genre) => genre.id === selectedGenreId)
-  const selectedMood = moods.find((mood) => mood.id === selectedMoodId)
+  const selectedGenre =
+    genres.find((genre) => genre.id === selectedGenreId) ?? null
+  const selectedMood =
+    moods.find((mood) => mood.id === selectedMoodId) ?? null
+
+  const resetForm = () => {
+    setTrackTitle('')
+    setSelectedArtistId('')
+    setSelectedGenreId('')
+    setSelectedMoodId('')
+    setAudioFile(null)
+    setIsExplicit(false)
+    setIsArtistOpen(false)
+    setIsGenreOpen(false)
+    setIsMoodOpen(false)
+  }
 
   const handleSelectArtist = (artistId: string) => {
     setSelectedArtistId(artistId)
@@ -99,13 +119,13 @@ const artists = artistsData ?? []
       })
 
       const track = await createTrack({
-        albumId: album.albumId,
-        containsExplicitContent: isExplicit,
-        genres: [selectedGenreId],
-        mainArtists: [selectedArtist.id],
-        moods: [selectedMoodId],
         title: trackTitle.trim(),
+        containsExplicitContent: isExplicit,
+        albumId: album.albumId,
+        mainArtists: [selectedArtist.id],
         featuredArtists: [],
+        genres: [selectedGenreId],
+        moods: [selectedMoodId],
       })
 
       await uploadTrackAudio(track.trackId, audioFile)
@@ -113,15 +133,13 @@ const artists = artistsData ?? []
       return track.trackId
     },
     onSuccess: async () => {
-      setSubmitMessage('Трек успішно створено і завантажено')
-      setTrackTitle('')
-      setSelectedArtistId('')
-      setSelectedGenreId('')
-      setSelectedMoodId('')
-      setAudioFile(null)
-      setIsExplicit(false)
+      setSubmitMessage('Трек успішно створено і аудіо завантажено')
+      resetForm()
 
-      await queryClient.invalidateQueries({ queryKey: ['admin-tracks'] })
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['admin-tracks'] }),
+        queryClient.invalidateQueries({ queryKey: ['admin-my-tracks'] }),
+      ])
     },
     onError: (error) => {
       const message =
@@ -308,7 +326,7 @@ const artists = artistsData ?? []
 
           <input
             type="file"
-            accept=".mp3,.wav,.flac,audio/*"
+            accept=".mp3,.wav,.flac,.m4a,.aac,audio/*"
             onChange={(e) => setAudioFile(e.target.files?.[0] ?? null)}
             className="mt-[10px] block w-full text-[14px] text-groov-accent"
           />

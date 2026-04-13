@@ -1,3 +1,4 @@
+
 export type AdminStats = {
   followers: number
   tracks: number
@@ -14,6 +15,9 @@ export type AdminTrackItem = {
   title: string
   artist: string
   status: 'published' | 'pending'
+  audioFileId: string | null
+  albumId: string | null
+  duration: string | null
 }
 
 export type AdminAnalyticsSummary = {
