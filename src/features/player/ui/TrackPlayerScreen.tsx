@@ -10,12 +10,15 @@ import { usePlayerControls } from '@/features/player/lib/usePlayerControls'
 import { usePlayerProgress } from '@/features/player/lib/usePlayerProgress'
 import { useCurrentTrackDetails } from '@/features/player/api/useCurrentTrackDetails'
 import { useTrackLyrics } from '@/features/player/api/useTrackLyrics'
+import { useTrackRelated } from '@/features/player/api/useTrackRelated'
+import { getArtistLabel } from '@/features/player/lib/getArtistLabel'
 import type {
   PlayerTab,
   QueueTrackItem,
 } from '@/features/player/model/player-screen.types'
 import { TrackPlayerLyricsView } from '@/features/player/ui/TrackPlayerLyricsView'
 import { TrackPlayerQueueView } from '@/features/player/ui/TrackPlayerQueueView'
+import { TrackPlayerRelatedView } from '@/features/player/ui/TrackPlayerRelatedView'
 import { TrackPlayerMainView } from '@/features/player/ui/TrackPlayerMainView'
 
 export function TrackPlayerScreen() {
@@ -31,10 +34,23 @@ export function TrackPlayerScreen() {
     currentTrack?.id ?? null
   )
 
-  const artistLabel =
-    currentTrackDetails?.mainArtists?.length
-      ? currentTrackDetails.mainArtists.map((artist) => artist.name).join(', ')
-      : currentTrack?.mainArtists?.join(', ') || 'Unknown artist'
+  const { data: relatedData, isLoading: isRelatedLoading } = useTrackRelated({
+    currentTrackId: currentTrack?.id ?? null,
+    currentTrackDetails,
+  })
+
+  const artistLabel = useMemo(() => {
+    if (currentTrackDetails?.mainArtists?.length) {
+      return getArtistLabel(currentTrackDetails.mainArtists)
+    }
+
+    return getArtistLabel(currentTrack?.mainArtists)
+  }, [currentTrack?.mainArtists, currentTrackDetails?.mainArtists])
+
+  const relatedArtistSectionTitle = useMemo(() => {
+    const primaryArtistName = currentTrackDetails?.mainArtists?.[0]?.name ?? null
+    return primaryArtistName || artistLabel || 'Альбоми артиста'
+  }, [artistLabel, currentTrackDetails?.mainArtists])
 
   const {
     isShuffled,
@@ -174,6 +190,24 @@ export function TrackPlayerScreen() {
         onOpenOptions={openTrackOptions}
         onOpenLyrics={() => setActiveTab('lyrics')}
         onOpenRelated={() => setActiveTab('related')}
+      />
+    )
+  }
+
+  if (activeTab === 'related') {
+    return (
+      <TrackPlayerRelatedView
+        currentTrack={currentTrack}
+        playbackContextExternalId={playback?.contextExternalId ?? null}
+        genreTracks={relatedData?.genreTracks ?? []}
+        albumsByArtist={relatedData?.albumsByArtist ?? []}
+        relatedArtists={relatedData?.relatedArtists ?? []}
+        artistSectionTitle={relatedArtistSectionTitle}
+        isLoading={isRelatedLoading}
+        onBack={() => setActiveTab(null)}
+        onOpenOptions={openTrackOptions}
+        onOpenNext={() => setActiveTab('next')}
+        onOpenLyrics={() => setActiveTab('lyrics')}
       />
     )
   }

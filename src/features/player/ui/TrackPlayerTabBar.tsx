@@ -74,7 +74,7 @@ export function TrackPlayerTabBar({
         />
       </div>
 
-      <div className="relative h-[2px] w-full bg-groov-accent/40">
+      <div className="relative h-[2px] w-full bg-transparent">
         <span
           className="absolute top-0 h-full w-[33.333%] rounded-full bg-groov-accent transition-all duration-300 [transition-timing-function:cubic-bezier(0.25,0.1,0.25,1)]"
           style={{

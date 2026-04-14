@@ -103,11 +103,7 @@ function AdminTrackRow({
           {isPublished ? 'Опубліковано' : 'На модерації'}
         </p>
 
-        {isCurrent && isPublished ? (
-          <p className="mt-[4px] text-[11px] leading-[13px] text-groov-accent/55">
-            Зараз грає
-          </p>
-        ) : null}
+    
       </div>
 
       <div className="ml-[12px] flex shrink-0 items-center gap-[14px]">
