@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo } from 'react'
+import { useRouter } from 'next/navigation'
 import { IconButton } from '@/shared/ui/buttons/IconButton'
 import { MoreIcon } from '@/shared/ui/icons/MoreIcon'
 import { ChevronDownIcon } from '@/shared/ui/icons/ChevronDownIcon'
@@ -37,30 +38,42 @@ function GenreTrackRow({
   track: RelatedTrackCard
   onOpenOptions: (trackId: string) => void
 }) {
+  const router = useRouter()
   const coverUrl = getMediaImageUrl(track.coverImageId)
+
+  const handleOpenTrack = () => {
+    router.push(`/play/${track.id}`)
+  }
 
   return (
     <div className="flex items-center gap-[12px]">
-      <div className="flex h-[50px] w-[50px] shrink-0 items-center justify-center overflow-hidden rounded-[6px] bg-groov-surface">
-        {coverUrl ? (
-          <img
-            src={coverUrl}
-            alt={track.title}
-            className="h-full w-full object-cover"
-          />
-        ) : (
-          <span className="text-groov-muted">♪</span>
-        )}
-      </div>
+      <button
+        type="button"
+        onClick={handleOpenTrack}
+        className="flex min-w-0 flex-1 items-center gap-[12px] text-left"
+        aria-label={`Відкрити трек ${track.title}`}
+      >
+        <div className="flex h-[50px] w-[50px] shrink-0 items-center justify-center overflow-hidden rounded-[6px] bg-groov-surface">
+          {coverUrl ? (
+            <img
+              src={coverUrl}
+              alt={track.title}
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <span className="text-groov-muted">♪</span>
+          )}
+        </div>
 
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-[16px] leading-[1.2] text-groov-accent">
-          {track.title}
-        </p>
-        <p className="mt-[6px] truncate text-[14px] leading-[1.2] text-groov-accent/85">
-          {track.artistLabel}
-        </p>
-      </div>
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-[16px] leading-[1.2] text-groov-accent">
+            {track.title}
+          </p>
+          <p className="mt-[6px] truncate text-[14px] leading-[1.2] text-groov-accent/85">
+            {track.artistLabel}
+          </p>
+        </div>
+      </button>
 
       <button
         type="button"
@@ -75,10 +88,20 @@ function GenreTrackRow({
 }
 
 function AlbumCard({ album }: { album: RelatedAlbumCard }) {
+  const router = useRouter()
   const coverUrl = getMediaImageUrl(album.coverImageId)
 
+  const handleOpenAlbum = () => {
+    router.push(`/album/${album.id}`)
+  }
+
   return (
-    <div className="w-[170px] shrink-0 rounded-[18px] bg-groov-surface px-[12px] pb-[14px] pt-[12px]">
+    <button
+      type="button"
+      onClick={handleOpenAlbum}
+      className="w-[170px] shrink-0 rounded-[18px] bg-groov-surface px-[12px] pb-[14px] pt-[12px] text-left"
+      aria-label={`Відкрити альбом ${album.title}`}
+    >
       <div className="flex h-[146px] w-full items-center justify-center overflow-hidden rounded-[14px] bg-groov-primary/40">
         {coverUrl ? (
           <img
@@ -98,19 +121,19 @@ function AlbumCard({ album }: { album: RelatedAlbumCard }) {
       <p className="mt-[10px] text-[13px] leading-[1.2] text-groov-accent/75">
         {album.typeLabel} · {album.yearLabel}
       </p>
-    </div>
+    </button>
   )
 }
 
 function ArtistCard({ artist }: { artist: RelatedArtistCard }) {
-  const avatarUrl = getMediaImageUrl(artist.avatarImageId)
+  const coverUrl = getMediaImageUrl(artist.avatarImageId)
 
   return (
     <div className="w-[136px] shrink-0">
       <div className="flex h-[136px] w-[136px] items-center justify-center overflow-hidden rounded-[18px] bg-groov-surface">
-        {avatarUrl ? (
+        {coverUrl ? (
           <img
-            src={avatarUrl}
+            src={coverUrl}
             alt={artist.name}
             className="h-full w-full object-cover"
           />

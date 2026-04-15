@@ -9,10 +9,15 @@ import { HomeHeroCard } from '@/features/home/ui/HomeHeroCard'
 import { SectionHeader } from '@/features/home/ui/SectionHeader'
 import { HScroll } from '@/features/home/ui/HScroll'
 import { GridCards } from '@/features/home/ui/GridCards'
-import { recently, forYou, albums } from '@/features/home/mock'
+import { useHomeSections } from '@/features/home/api/useHomeSections'
 
 export default function HomePage() {
   const displayName = useAuthStore((s) => s.displayName)
+  const { data, isLoading } = useHomeSections()
+
+  const recently = data?.recently ?? []
+  const forYou = data?.forYou ?? []
+  const albums = data?.albums ?? []
 
   return (
     <AppShell withBottomNavSpacing>
@@ -30,45 +35,61 @@ export default function HomePage() {
 
       <HomeHeroCard />
 
-      {/* DESKTOP */}
-      <div className="hidden lg:grid lg:mt-8 lg:grid-cols-[1.3fr_1fr] lg:gap-6">
-        <div className="space-y-7">
-          <SectionBlock className="mt-0">
-            <SectionHeader title="Нещодавно слухали" href="/recent" />
-<HScroll items={recently} hrefPrefix="/play" />
-          </SectionBlock>
+      {!isLoading && (
+        <>
+          {/* DESKTOP */}
+          <div className="hidden lg:grid lg:mt-8 lg:grid-cols-[1.3fr_1fr] lg:gap-6">
+            <div className="space-y-7">
+              {recently.length > 0 ? (
+                <SectionBlock className="mt-0">
+                  <SectionHeader title="Нещодавно слухали" href="/recent" />
+                  <HScroll items={recently} />
+                </SectionBlock>
+              ) : null}
 
-          <SectionBlock>
-            <SectionHeader title="Популярні альбоми" href="/albums" />
-           <HScroll items={albums} hrefPrefix="/album" variant="album" />
-          </SectionBlock>
-        </div>
+              {albums.length > 0 ? (
+                <SectionBlock>
+                  <SectionHeader title="Популярні альбоми" href="/albums" />
+                  <HScroll items={albums} hrefPrefix="/album" variant="album" />
+                </SectionBlock>
+              ) : null}
+            </div>
 
-        <div className="space-y-7">
-          <SectionBlock className="mt-0">
-            <SectionHeader title="Плейлісти для вас" href="/playlists" />
-            <GridCards items={forYou.slice(0, 4)} hrefPrefix="/playlist" />
-          </SectionBlock>
-        </div>
-      </div>
+            <div className="space-y-7">
+              {forYou.length > 0 ? (
+                <SectionBlock className="mt-0">
+                  <SectionHeader title="Плейлісти для вас" href="/playlists" />
+                  <GridCards items={forYou} hrefPrefix="/playlist" />
+                </SectionBlock>
+              ) : null}
+            </div>
+          </div>
 
-      {/* MOBILE */}
-      <div className="lg:hidden">
-        <SectionBlock>
-          <SectionHeader title="Нещодавно слухали" href="/recent" />
-<HScroll items={recently} />
-        </SectionBlock>
+          {/* MOBILE */}
+          <div className="lg:hidden">
+            {recently.length > 0 ? (
+              <SectionBlock>
+                <SectionHeader title="Нещодавно слухали" href="/recent" />
+                <HScroll items={recently} />
+              </SectionBlock>
+            ) : null}
 
-        <SectionBlock>
-          <SectionHeader title="Плейлісти для вас" href="/playlists" />
-          <GridCards items={forYou.slice(0, 4)} hrefPrefix="/playlist" />
-        </SectionBlock>
+            {forYou.length > 0 ? (
+              <SectionBlock>
+                <SectionHeader title="Плейлісти для вас" href="/playlists" />
+                <GridCards items={forYou} hrefPrefix="/playlist" />
+              </SectionBlock>
+            ) : null}
 
-        <SectionBlock>
-          <SectionHeader title="Популярні альбоми" href="/albums" />
-         <HScroll items={albums} hrefPrefix="/album" variant="album" />
-        </SectionBlock>
-      </div>
+            {albums.length > 0 ? (
+              <SectionBlock>
+                <SectionHeader title="Популярні альбоми" href="/albums" />
+                <HScroll items={albums} hrefPrefix="/album" variant="album" />
+              </SectionBlock>
+            ) : null}
+          </div>
+        </>
+      )}
 
       <BottomNav />
     </AppShell>

@@ -17,8 +17,15 @@ export type PlaylistSummary = {
   generatedCoverImageIds: string[]
 }
 
-export type CurrentUserPlaylistsResponse = {
-  playlists: PlaylistSummary[]
+export type PlaylistsListResponse = {
+  playlists: {
+    items: PlaylistSummary[]
+    page: number
+    pageSize: number
+    totalCount: number
+    hasNextPage: boolean
+    hasPreviousPage: boolean
+  }
 }
 
 export type PlaylistDetailsResponse = {
@@ -38,6 +45,10 @@ export type PlaylistDetailsResponse = {
     id: string
     position: number
   }>
+}
+
+export type CurrentUserPlaylistsResponse = {
+  playlists: PlaylistSummary[]
 }
 
 export type CreatePlaylistResponse = {
@@ -62,10 +73,28 @@ export type LinkPlaylistCoverRequest = {
   imageSizeInBytes: number
 }
 
+type GetPlaylistsParams = {
+  trackIds?: string[]
+  page?: number
+  pageSize?: number
+}
+
 export async function getCurrentUserPlaylists() {
   const { data } = await apiClient.get<CurrentUserPlaylistsResponse>(
     '/api/v1/me/playlists'
   )
+  return data
+}
+
+export async function getPlaylists(params?: GetPlaylistsParams) {
+  const { data } = await apiClient.get<PlaylistsListResponse>('/api/v1/playlists', {
+    params: {
+      TrackIds: params?.trackIds,
+      Page: params?.page ?? 1,
+      PageSize: params?.pageSize ?? 100,
+    },
+  })
+
   return data
 }
 

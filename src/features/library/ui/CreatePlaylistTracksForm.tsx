@@ -1,6 +1,10 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useQuery } from '@tanstack/react-query'
+import { apiClient } from '@/shared/api/client'
+import { getBackendImageUrl } from '@/shared/lib/getBackendImageUrl'
 import {
   useCreatePlaylistStore,
   type PlaylistTrack,
@@ -10,114 +14,113 @@ import { CreatePlaylistNextButton } from './CreatePlaylistNextButton'
 
 type TrackItem = PlaylistTrack
 
-const tracksMock: TrackItem[] = [
-  {
-    id: 'motion',
-    title: 'MOTION',
-    artist: 'Nemzzz',
-    duration: '02:22',
-    cover: 'https://i.scdn.co/image/ab67616d00001e02e3b0d4e4c8ad7e6d7f4f5c28',
-  },
-  {
-    id: 'sprinter',
-    title: 'Sprinter',
-    artist: 'Dave i Central Cee',
-    duration: '03:50',
-    cover: 'https://i.scdn.co/image/ab67616d00001e028d7b3b6b5df4d2f6f7c84d8b',
-  },
-  {
-    id: 'batman',
-    title: 'Batman',
-    artist: 'mikeyeysmind i dadanny',
-    duration: '02:15',
-    cover: 'https://i.scdn.co/image/ab67616d00001e025dba2f90ec7c4f6ffc0dbe22',
-  },
-  {
-    id: 'did-it-first',
-    title: 'Did It First',
-    artist: 'Ice Spice i Central Cee',
-    duration: '02:22',
-    cover: 'https://i.scdn.co/image/ab67616d00001e02820b8f2d5f2c858447f0c4e5',
-  },
-  {
-    id: 'which-one',
-    title: 'Which One',
-    artist: 'Central Cee i Drake',
-    duration: '03:50',
-    cover: 'https://i.scdn.co/image/ab67616d00001e029d3f0b0fd3c1bd5f0fdb59bd',
-  },
-  {
-    id: 'mm3',
-    title: 'MM3',
-    artist: 'SoFaygo',
-    duration: '03:50',
-    cover: 'https://i.scdn.co/image/ab67616d00001e02ef4e4dc6d8cb12c325a4e497',
-  },
-  {
-    id: 'only-you',
-    title: 'only you (slowed + reverb)',
-    artist: 'bluent i bre.beats',
-    duration: '02:22',
-    cover: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=600&q=80',
-  },
-  {
-    id: 'glow',
-    title: 'glow',
-    artist: 'bluent',
-    duration: '03:50',
-    cover: 'https://dummyimage.com/300x300/ff2222/ff2222',
-  },
-  {
-    id: 'motion23',
-    title: 'MOTION',
-    artist: 'Nemzzz',
-    duration: '02:22',
-    cover: 'https://i.scdn.co/image/ab67616d00001e02e3b0d4e4c8ad7e6d7f4f5c28',
-  },
-  {
-    id: 'sprinter3',
-    title: 'Sprinter',
-    artist: 'Dave i Central Cee',
-    duration: '03:50',
-    cover: 'https://i.scdn.co/image/ab67616d00001e028d7b3b6b5df4d2f6f7c84d8b',
-  },
-  {
-    id: 'batman2',
-    title: 'Batman',
-    artist: 'mikeyeysmind i dadanny',
-    duration: '02:15',
-    cover: 'https://i.scdn.co/image/ab67616d00001e025dba2f90ec7c4f6ffc0dbe22',
-  },
-  {
-    id: 'did-it-first2',
-    title: 'Did It First',
-    artist: 'Ice Spice i Central Cee',
-    duration: '02:22',
-    cover: 'https://i.scdn.co/image/ab67616d00001e02820b8f2d5f2c858447f0c4e5',
-  },
-  {
-    id: 'which-one2',
-    title: 'Which One',
-    artist: 'Central Cee i Drake',
-    duration: '03:50',
-    cover: 'https://i.scdn.co/image/ab67616d00001e029d3f0b0fd3c1bd5f0fdb59bd',
-  },
-  {
-    id: 'mm32',
-    title: 'MM3',
-    artist: 'SoFaygo',
-    duration: '03:50',
-    cover: 'https://i.scdn.co/image/ab67616d00001e02ef4e4dc6d8cb12c325a4e497',
-  },
-  {
-    id: 'glow2',
-    title: 'glow',
-    artist: 'bluent',
-    duration: '03:50',
-    cover: 'https://dummyimage.com/300x300/ff2222/ff2222',
-  },
-]
+type TrackApiArtist = {
+  id: string
+  name: string
+}
 
+type TrackApiItem = {
+  id: string
+  title: string
+  duration: string | null
+  status?: string
+  mainArtists?: TrackApiArtist[]
+  featuredArtists?: TrackApiArtist[]
+  album?: {
+    cover?: {
+      imageId: string
+    } | null
+  } | null
+  cover?: {
+    imageId: string
+  } | null
+}
+
+function normalizeTracksResponse(data: unknown): TrackApiItem[] {
+  if (Array.isArray(data)) {
+    return data as TrackApiItem[]
+  }
+
+  if (data && typeof data === 'object') {
+    const record = data as Record<string, unknown>
+
+    if (Array.isArray(record.items)) {
+      return record.items as TrackApiItem[]
+    }
+
+    if (
+      record.tracks &&
+      typeof record.tracks === 'object' &&
+      Array.isArray((record.tracks as Record<string, unknown>).items)
+    ) {
+      return (record.tracks as { items: TrackApiItem[] }).items
+    }
+
+    if (Array.isArray(record.data)) {
+      return record.data as TrackApiItem[]
+    }
+
+    if (Array.isArray(record.results)) {
+      return record.results as TrackApiItem[]
+    }
+  }
+
+  return []
+}
+
+function getArtistLabel(track: TrackApiItem) {
+  const mainArtists = Array.isArray(track.mainArtists) ? track.mainArtists : []
+  const featuredArtists = Array.isArray(track.featuredArtists)
+    ? track.featuredArtists
+    : []
+
+  const names = [...mainArtists, ...featuredArtists]
+    .map((artist) => artist.name)
+    .filter(Boolean)
+
+  return names.length > 0 ? names.join(', ') : 'Невідомий артист'
+}
+
+function getCoverUrl(track: TrackApiItem) {
+  return (
+    getBackendImageUrl(track.cover?.imageId ?? null) ??
+    getBackendImageUrl(track.album?.cover?.imageId ?? null) ??
+    null
+  )
+}
+
+function normalizeDuration(value: string | null | undefined) {
+  if (!value) return '00:00'
+
+  if (/^\d{2}:\d{2}$/.test(value) || /^\d{2}:\d{2}:\d{2}$/.test(value)) {
+    return value.slice(-5)
+  }
+
+  const parts = value.split(':')
+  if (parts.length >= 2) {
+    const minutes = parts[parts.length - 2]?.padStart(2, '0') ?? '00'
+    const secondsRaw = parts[parts.length - 1] ?? '00'
+    const seconds = secondsRaw.split('.')[0].padStart(2, '0')
+    return `${minutes}:${seconds}`
+  }
+
+  return '00:00'
+}
+
+async function fetchTracks(): Promise<TrackItem[]> {
+  const { data } = await apiClient.get('/api/v1/tracks')
+  const items = normalizeTracksResponse(data)
+
+  return items
+    .filter((track) => track.status === 'published')
+    .map((track) => ({
+      id: track.id,
+      title: track.title,
+      artist: getArtistLabel(track),
+      duration: normalizeDuration(track.duration),
+      cover: getCoverUrl(track),
+    }))
+}
 function SearchIcon() {
   return (
     <svg
@@ -180,12 +183,18 @@ function TrackRow({ track, checked, onToggle }: TrackRowProps) {
         ) : null}
       </div>
 
-      <div className="ml-[12px] h-[50px] w-[50px] shrink-0 overflow-hidden rounded-[8px]">
-        <img
-          src={track.cover}
-          alt={track.title}
-          className="h-full w-full object-cover"
-        />
+      <div className="ml-[12px] h-[50px] w-[50px] shrink-0 overflow-hidden rounded-[8px] bg-groov-bg">
+        {track.cover ? (
+          <img
+            src={track.cover}
+            alt={track.title}
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center text-[10px] text-groov-muted">
+            No image
+          </div>
+        )}
       </div>
 
       <div className="ml-[12px] min-w-0 flex-1">
@@ -206,38 +215,44 @@ function TrackRow({ track, checked, onToggle }: TrackRowProps) {
 }
 
 export function CreatePlaylistTracksForm() {
-  const { tracks, setTracks } = useCreatePlaylistStore()
+  const router = useRouter()
+  const savedTracks = useCreatePlaylistStore((state) => state.tracks)
+  const setTracks = useCreatePlaylistStore((state) => state.setTracks)
 
   const [query, setQuery] = useState('')
   const [visibleCount, setVisibleCount] = useState(8)
   const [selectedIds, setSelectedIds] = useState<string[]>(
-    tracks.map((track) => track.id)
+    savedTracks.map((track) => track.id)
   )
 
-  const filteredTracks = useMemo(() => {
-    const normalizedQuery = query.trim().toLowerCase()
-
-    if (!normalizedQuery) return tracksMock
-
-    return tracksMock.filter(
-      (track) =>
-        track.title.toLowerCase().includes(normalizedQuery) ||
-        track.artist.toLowerCase().includes(normalizedQuery)
-    )
-  }, [query])
-
-  const visibleTracks = filteredTracks.slice(0, visibleCount)
+  const { data: allTracks = [], isLoading, isError } = useQuery({
+    queryKey: ['create-playlist-tracks'],
+    queryFn: fetchTracks,
+    staleTime: 30_000,
+  })
 
   useEffect(() => {
     setVisibleCount(8)
   }, [query])
 
-  useEffect(() => {
-    const selectedTracks = tracksMock.filter((track) =>
-      selectedIds.includes(track.id)
+  const filteredTracks = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase()
+
+    if (!normalizedQuery) return allTracks
+
+    return allTracks.filter(
+      (track) =>
+        track.title.toLowerCase().includes(normalizedQuery) ||
+        track.artist.toLowerCase().includes(normalizedQuery)
     )
-    setTracks(selectedTracks)
-  }, [selectedIds, setTracks])
+  }, [allTracks, query])
+
+  const visibleTracks = filteredTracks.slice(0, visibleCount)
+
+  const selectedTracks = useMemo(
+    () => allTracks.filter((track) => selectedIds.includes(track.id)),
+    [allTracks, selectedIds]
+  )
 
   const toggleTrack = (trackId: string) => {
     setSelectedIds((prev) =>
@@ -249,6 +264,15 @@ export function CreatePlaylistTracksForm() {
 
   const hasSelectedTracks = selectedIds.length > 0
 
+  const handleNext = (
+    event?: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>,
+  ) => {
+    event?.preventDefault()
+
+    setTracks(selectedTracks)
+    router.push('/library/create-playlist/visibility')
+  }
+
   return (
     <>
       <div className="mt-[25px]">
@@ -257,7 +281,8 @@ export function CreatePlaylistTracksForm() {
         </h1>
 
         <p className="mt-[10px] max-w-[360px] text-[16px] leading-[18px] text-groov-accent">
-          Виберіть треки, які будуть у вашому плейлісті. Можна додати будь-яку кількість.
+          Виберіть треки, які будуть у вашому плейлісті. Можна додати будь-яку
+          кількість.
         </p>
       </div>
 
@@ -277,27 +302,39 @@ export function CreatePlaylistTracksForm() {
         </label>
       </div>
 
-      <div className="mt-[14px] space-y-[8px]">
-        {visibleTracks.map((track) => (
-          <TrackRow
-            key={track.id}
-            track={track}
-            checked={selectedIds.includes(track.id)}
-            onToggle={() => toggleTrack(track.id)}
-          />
-        ))}
-      </div>
+      {isLoading ? (
+        <div className="mt-[18px] text-[15px] text-groov-accent">
+          Завантаження треків...
+        </div>
+      ) : isError ? (
+        <div className="mt-[18px] text-[15px] text-groov-accent">
+          Не вдалося завантажити треки
+        </div>
+      ) : (
+        <>
+          <div className="mt-[14px] space-y-[8px]">
+            {visibleTracks.map((track) => (
+              <TrackRow
+                key={track.id}
+                track={track}
+                checked={selectedIds.includes(track.id)}
+                onToggle={() => toggleTrack(track.id)}
+              />
+            ))}
+          </div>
 
-      <div className="h-[24px]" />
+          <div className="h-[24px]" />
 
-      {visibleCount < filteredTracks.length && (
-        <button
-          type="button"
-          onClick={() => setVisibleCount((prev) => prev + 8)}
-          className="w-full text-center text-[16px] leading-[19px] text-groov-accent transition-opacity active:opacity-70"
-        >
-          Завантажити ще
-        </button>
+          {visibleCount < filteredTracks.length && (
+            <button
+              type="button"
+              onClick={() => setVisibleCount((prev) => prev + 8)}
+              className="w-full text-center text-[16px] leading-[19px] text-groov-accent transition-opacity active:opacity-70"
+            >
+              Завантажити ще
+            </button>
+          )}
+        </>
       )}
 
       <CreatePlaylistBottomAction
@@ -308,6 +345,7 @@ export function CreatePlaylistTracksForm() {
         <CreatePlaylistNextButton
           href="/library/create-playlist/visibility"
           disabled={!hasSelectedTracks}
+          onClick={handleNext}
         />
       </CreatePlaylistBottomAction>
     </>

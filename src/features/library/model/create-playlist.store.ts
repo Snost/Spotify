@@ -7,7 +7,7 @@ export type PlaylistTrack = {
   title: string
   artist: string
   duration: string
-  cover: string
+  cover: string| null
 }
 
 type State = {

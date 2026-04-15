@@ -38,19 +38,27 @@ export function CreatePlaylistReviewForm() {
     return Math.max(1, Math.round(totalSeconds / 60))
   }, [tracks])
 
-  const handleCreatePlaylist = async () => {
+  const handleCreatePlaylist = async (
+    event?: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>,
+  ) => {
+    event?.preventDefault()
+
+    if (createPlaylistMutation.isPending) {
+      return
+    }
+
     try {
       const result = await createPlaylistMutation.mutateAsync({
-  name: name || 'Без назви',
-  description: description || null,
-  isPublic: visibility === 'public',
-  trackIds: tracks.map((track) => track.id),
-  coverFile,
-  coverColor,
-})
+        name: name.trim() || 'Без назви',
+        description: description.trim() || null,
+        isPublic: visibility === 'public',
+        trackIds: tracks.map((track) => track.id),
+        coverFile,
+        coverColor,
+      })
 
       reset()
-      router.push(`/playlist/${result.playlistId}`)
+      router.replace(`/playlist/${result.playlistId}`)
     } catch (error) {
       console.error('Failed to create playlist', error)
     }
@@ -119,7 +127,8 @@ export function CreatePlaylistReviewForm() {
 
       <CreatePlaylistBottomAction className="pt-[40px]" bottomOffset={34}>
         <CreatePlaylistNextButton
-          href="#"
+          href="/library"
+          disabled={createPlaylistMutation.isPending}
           label={
             createPlaylistMutation.isPending
               ? 'Створення...'

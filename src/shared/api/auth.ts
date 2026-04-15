@@ -1,10 +1,9 @@
 import { ApiError, mapApiError } from './error'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000'
+const API_URL = process.env.NEXT_PUBLIC_API_BASE ?? 'http://localhost:5000'
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const url = `${API_URL}${path}`
-  console.log('AUTH REQUEST URL:', url)
 
   let res: Response
 
@@ -16,28 +15,24 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
         ...(init?.headers ?? {}),
       },
       credentials: 'include',
+      cache: 'no-store',
     })
-  } catch (error) {
-    console.error('FETCH FAILED:', error)
+  } catch {
     throw new ApiError('Не вдалося підключитися до сервера')
   }
-
-  console.log('AUTH RESPONSE STATUS:', res.status, res.statusText)
 
   if (res.ok) {
     if (res.status === 204) return undefined as T
     return (await res.json()) as T
   }
 
-  let payload: any = null
+  let payload: unknown = null
 
   try {
     payload = await res.json()
   } catch {
     payload = null
   }
-
-  console.error('AUTH RESPONSE PAYLOAD:', payload)
 
   throw mapApiError(payload, res.status)
 }

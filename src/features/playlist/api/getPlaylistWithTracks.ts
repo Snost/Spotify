@@ -1,11 +1,11 @@
 import { getPlaylist } from '@/shared/api/playlists'
-import { getTrack } from '@/shared/api/tracks'
+import { getTrackDetails } from '@/shared/api/tracks'
 
 export type PlaylistTrackViewModel = {
   id: string
   position: number
   title: string
-  duration: number | null
+  duration: string | null
   artist: string
   image: string | null
   albumId: string | null
@@ -23,6 +23,10 @@ export type PlaylistDetailsViewModel = {
   tracks: PlaylistTrackViewModel[]
 }
 
+function getYearLabel() {
+  return String(new Date().getFullYear())
+}
+
 export async function getPlaylistWithTracks(
   playlistId: string,
 ): Promise<PlaylistDetailsViewModel> {
@@ -33,7 +37,7 @@ export async function getPlaylistWithTracks(
   )
 
   const trackDetails = await Promise.all(
-    sortedTrackRefs.map((trackRef) => getTrack(trackRef.id)),
+    sortedTrackRefs.map((trackRef) => getTrackDetails(trackRef.id)),
   )
 
   const tracks: PlaylistTrackViewModel[] = sortedTrackRefs.map(
@@ -48,7 +52,7 @@ export async function getPlaylistWithTracks(
         artist:
           track.mainArtists.length > 0
             ? track.mainArtists.map((artist) => artist.name).join(', ')
-            : 'Unknown artist',
+            : 'Невідомий артист',
         image: null,
         albumId: track.albumId,
         containsExplicitContent: track.containsExplicitContent,
@@ -59,12 +63,9 @@ export async function getPlaylistWithTracks(
   return {
     id: playlist.id,
     title: playlist.name,
-    description: playlist.description ?? '',
-    author:
-      playlist.collaborators.length > 0
-        ? playlist.collaborators.map((item) => item.name).join(', ')
-        : 'Playlist',
-    year: '',
+    description: playlist.description?.trim() || 'Без опису',
+    author: 'GROOV',
+    year: getYearLabel(),
     tracksCount: tracks.length,
     cover: null,
     tracks,

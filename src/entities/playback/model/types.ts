@@ -47,7 +47,6 @@ export type StartPlaybackRequest = {
   contextExternalId: string | null
   startTrackId: string | null
 }
-
 export type DeviceOnlyRequest = {
   deviceId: string
 }

@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { IconButton } from '@/shared/ui/buttons/IconButton'
 import { MoreIcon } from '@/shared/ui/icons/MoreIcon'
 import { ChevronDownIcon } from '@/shared/ui/icons/ChevronDownIcon'
@@ -11,46 +11,60 @@ import { usePlayerProgress } from '@/features/player/lib/usePlayerProgress'
 import { useCurrentTrackDetails } from '@/features/player/api/useCurrentTrackDetails'
 import { useTrackLyrics } from '@/features/player/api/useTrackLyrics'
 import { useTrackRelated } from '@/features/player/api/useTrackRelated'
-import { getArtistLabel } from '@/features/player/lib/getArtistLabel'
 import type {
   PlayerTab,
   QueueTrackItem,
 } from '@/features/player/model/player-screen.types'
 import { TrackPlayerLyricsView } from '@/features/player/ui/TrackPlayerLyricsView'
 import { TrackPlayerQueueView } from '@/features/player/ui/TrackPlayerQueueView'
-import { TrackPlayerRelatedView } from '@/features/player/ui/TrackPlayerRelatedView'
 import { TrackPlayerMainView } from '@/features/player/ui/TrackPlayerMainView'
+import { TrackPlayerRelatedView } from '@/features/player/ui/TrackPlayerRelatedView'
 
 export function TrackPlayerScreen() {
   const router = useRouter()
+  const searchParams = useSearchParams()
 
   const queue = usePlayerStore((state) => state.queue)
   const playback = usePlayerStore((state) => state.playback)
 
-  const currentTrack = (queue?.currentTrack ?? null) as QueueTrackItem | null
-  const queueTracks = (queue?.tracksInQueue ?? []) as QueueTrackItem[]
+  const queryTrackId = searchParams.get('trackId')
 
-  const { data: currentTrackDetails } = useCurrentTrackDetails(
-    currentTrack?.id ?? null
-  )
+  const currentTrackFromStore = (queue?.currentTrack ?? null) as QueueTrackItem | null
+  const queueTracksFromStore = (queue?.tracksInQueue ?? []) as QueueTrackItem[]
 
-  const { data: relatedData, isLoading: isRelatedLoading } = useTrackRelated({
-    currentTrackId: currentTrack?.id ?? null,
-    currentTrackDetails,
-  })
+  const resolvedTrackId = currentTrackFromStore?.id ?? queryTrackId ?? null
 
-  const artistLabel = useMemo(() => {
-    if (currentTrackDetails?.mainArtists?.length) {
-      return getArtistLabel(currentTrackDetails.mainArtists)
+  const { data: currentTrackDetails } = useCurrentTrackDetails(resolvedTrackId)
+
+  const fallbackTrack = useMemo<QueueTrackItem | null>(() => {
+    if (currentTrackFromStore) {
+      return currentTrackFromStore
     }
 
-    return getArtistLabel(currentTrack?.mainArtists)
-  }, [currentTrack?.mainArtists, currentTrackDetails?.mainArtists])
+    if (!currentTrackDetails) {
+      return null
+    }
 
-  const relatedArtistSectionTitle = useMemo(() => {
-    const primaryArtistName = currentTrackDetails?.mainArtists?.[0]?.name ?? null
-    return primaryArtistName || artistLabel || 'Альбоми артиста'
-  }, [artistLabel, currentTrackDetails?.mainArtists])
+    return {
+      id: currentTrackDetails.id,
+      title: currentTrackDetails.title,
+      mainArtists: currentTrackDetails.mainArtists?.map((artist) => artist.name) ?? [],
+      moods: currentTrackDetails.moods?.map((mood) => mood.id) ?? [],
+    } as QueueTrackItem
+  }, [currentTrackFromStore, currentTrackDetails])
+
+  const currentTrack = fallbackTrack
+  const queueTracks =
+    queueTracksFromStore.length > 0
+      ? queueTracksFromStore
+      : currentTrack
+        ? [currentTrack]
+        : []
+
+  const artistLabel =
+    currentTrackDetails?.mainArtists?.length
+      ? currentTrackDetails.mainArtists.map((artist) => artist.name).join(', ')
+      : currentTrack?.mainArtists?.join(', ') || 'Unknown artist'
 
   const {
     isShuffled,
@@ -77,6 +91,17 @@ export function TrackPlayerScreen() {
   const [activeTab, setActiveTab] = useState<PlayerTab>(null)
 
   const lyrics = useTrackLyrics(currentTrack?.title ?? null)
+
+  const relatedQuery = useTrackRelated({
+  currentTrackId: currentTrack?.id ?? null,
+  currentTrackDetails,
+})
+
+ const relatedData = relatedQuery.data ?? {
+  genreTracks: [],
+  albumsByArtist: [],
+  relatedArtists: [],
+}
 
   const progressPercent =
     durationSec > 0
@@ -145,14 +170,22 @@ export function TrackPlayerScreen() {
   }
 
   const nextTracksLabel = useMemo(() => {
-    const nextCount = queueTracks.length ?? 0
+    const nextCount = nextTracksByMood.length ?? 0
     if (nextCount === 0) return 'Черга порожня'
     if (nextCount === 1) return '1 трек у черзі'
     return `${nextCount} треків у черзі`
-  }, [queueTracks])
+  }, [nextTracksByMood])
 
   const openTrackOptions = (trackId: string) => {
     router.push(`/player/options?trackId=${trackId}`)
+  }
+
+  if (!currentTrack && resolvedTrackId) {
+    return (
+      <div className="flex min-h-[100dvh] items-center justify-center bg-groov-bg px-6 text-center text-groov-accent">
+        Завантаження треку...
+      </div>
+    )
   }
 
   if (!currentTrack) {
@@ -199,11 +232,11 @@ export function TrackPlayerScreen() {
       <TrackPlayerRelatedView
         currentTrack={currentTrack}
         playbackContextExternalId={playback?.contextExternalId ?? null}
-        genreTracks={relatedData?.genreTracks ?? []}
-        albumsByArtist={relatedData?.albumsByArtist ?? []}
-        relatedArtists={relatedData?.relatedArtists ?? []}
-        artistSectionTitle={relatedArtistSectionTitle}
-        isLoading={isRelatedLoading}
+        genreTracks={relatedData.genreTracks}
+        albumsByArtist={relatedData.albumsByArtist}
+        relatedArtists={relatedData.relatedArtists}
+artistSectionTitle={artistLabel}
+        isLoading={relatedQuery.isLoading}
         onBack={() => setActiveTab(null)}
         onOpenOptions={openTrackOptions}
         onOpenNext={() => setActiveTab('next')}

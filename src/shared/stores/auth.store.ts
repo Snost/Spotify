@@ -50,15 +50,25 @@ export const useAuthStore = create<AuthState>()(
 
       register: async (dto) => {
         const { accessToken } = await authApi.register(dto)
-        set({ accessToken, displayName: dto.displayName })
+        set({
+          accessToken,
+          displayName: dto.displayName,
+        })
       },
 
       tryRefresh: async () => {
         try {
           const { accessToken } = await authApi.refresh()
+
+          if (!accessToken) {
+            set({ accessToken: null })
+            return false
+          }
+
           set({ accessToken })
           return true
         } catch {
+          set({ accessToken: null })
           return false
         }
       },
@@ -66,13 +76,18 @@ export const useAuthStore = create<AuthState>()(
       logout: async () => {
         const token = get().accessToken
 
-        if (token) {
-          try {
+        try {
+          if (token) {
             await authApi.logout(token)
-          } catch {}
+          }
+        } catch {
+          // ignore
+        } finally {
+          set({
+            accessToken: null,
+            displayName: null,
+          })
         }
-
-        set({ accessToken: null, displayName: null })
       },
     }),
     {

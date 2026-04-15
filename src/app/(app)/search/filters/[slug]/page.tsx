@@ -1,9 +1,8 @@
-import { notFound } from 'next/navigation'
 import { AppShell } from '@/shared/ui/layout/AppShell'
 import { BottomNav } from '@/shared/ui/BottomNav'
 import { BackButton } from '@/shared/ui/buttons/BackButton'
 import { FilterSection } from '@/features/search/ui/FilterSection'
-import { filterDetailsMap } from '@/features/search/mock/filter-details.mock'
+import { getGenreCatalog } from '@/features/catalog/model/getGenreCatalog'
 
 type Props = {
   params: Promise<{
@@ -30,17 +29,15 @@ function getSectionVariant(title: string): 'default' | 'wide' {
 
 export default async function FilterDetailsPage({ params }: Props) {
   const { slug } = await params
-  const filter = filterDetailsMap[slug]
-
-  if (!filter) {
-    notFound()
-  }
+  const filter = await getGenreCatalog(slug)
 
   return (
-    <AppShell
-      mobileMaxWidth={402}
-      withDefaultPadding={false}
-    >
+    <AppShell mobileMaxWidth={402} withDefaultPadding={false}
+          withSafeAreaTop
+          withSafeAreaBottom
+          withBottomNavSpacing={false}
+          
+          mobileTopOffset={50}>
       <div className="px-4 pb-[16px] pt-[16px]">
         <div className="flex items-center gap-3 text-groov-accent">
           <BackButton

@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 
 export type LibraryPlaylistItem = {
   id: string
@@ -15,11 +16,18 @@ type State = {
   prependPlaylist: (playlist: LibraryPlaylistItem) => void
 }
 
-export const useLibraryPlaylistsStore = create<State>((set) => ({
-  playlists: [],
-  setPlaylists: (playlists) => set({ playlists }),
-  prependPlaylist: (playlist) =>
-    set((state) => ({
-      playlists: [playlist, ...state.playlists],
-    })),
-}))
+export const useLibraryPlaylistsStore = create<State>()(
+  persist(
+    (set) => ({
+      playlists: [],
+      setPlaylists: (playlists) => set({ playlists }),
+      prependPlaylist: (playlist) =>
+        set((state) => ({
+          playlists: [playlist, ...state.playlists],
+        })),
+    }),
+    {
+      name: 'library-playlists',
+    }
+  )
+)

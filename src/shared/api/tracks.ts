@@ -8,6 +8,16 @@ export type TrackArtist = {
   avatar: string | null
 }
 
+export type TrackGenre = {
+  id: string
+  name: string
+}
+
+export type TrackMood = {
+  id: string
+  name: string
+}
+
 export type TrackDetailsResponse = {
   id: string
   title: string
@@ -19,17 +29,15 @@ export type TrackDetailsResponse = {
   albumId: string | null
   mainArtists: TrackArtist[]
   featuredArtists: TrackArtist[]
-  genres: Array<{
-    id: string
-    name: string
-  }>
-  moods: Array<{
-    id: string
-    name: string
-  }>
+  genres: TrackGenre[]
+  moods: TrackMood[]
+}
+
+export async function getTrack(id: string) {
+  const { data } = await apiClient.get<TrackDetailsResponse>(`/api/v1/tracks/${id}`)
+  return data
 }
 
 export async function getTrackDetails(id: string) {
-  const { data } = await apiClient.get<TrackDetailsResponse>(`/api/v1/tracks/${id}`)
-  return data
+  return getTrack(id)
 }
