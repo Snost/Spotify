@@ -1,5 +1,7 @@
 import { getPlaylist } from '@/shared/api/playlists'
 import { getTrackDetails } from '@/shared/api/tracks'
+import { getImageAssetDetails } from '@/shared/api/images'
+import { getBackendImageUrl } from '@/shared/lib/getBackendImageUrl'
 
 export type PlaylistTrackViewModel = {
   id: string
@@ -27,6 +29,25 @@ function getYearLabel() {
   return String(new Date().getFullYear())
 }
 
+async function resolveImageUrl(imageId?: string | null) {
+  if (!imageId) {
+    return null
+  }
+
+  try {
+    const image = await getImageAssetDetails(imageId)
+    const maybeWebpUrl = (image as { webpUrl?: string | null }).webpUrl
+
+    if (maybeWebpUrl) {
+      return maybeWebpUrl
+    }
+  } catch {
+    // fallback нижче
+  }
+
+  return getBackendImageUrl(imageId)
+}
+
 export async function getPlaylistWithTracks(
   playlistId: string,
 ): Promise<PlaylistDetailsViewModel> {
@@ -39,6 +60,13 @@ export async function getPlaylistWithTracks(
   const trackDetails = await Promise.all(
     sortedTrackRefs.map((trackRef) => getTrackDetails(trackRef.id)),
   )
+
+  const coverImageId =
+    playlist.customCoverImageId?.imageId ??
+    playlist.generatedCoverImageIds?.[0] ??
+    null
+
+  const cover = await resolveImageUrl(coverImageId)
 
   const tracks: PlaylistTrackViewModel[] = sortedTrackRefs.map(
     (trackRef, index) => {
@@ -67,7 +95,7 @@ export async function getPlaylistWithTracks(
     author: 'GROOV',
     year: getYearLabel(),
     tracksCount: tracks.length,
-    cover: null,
+    cover,
     tracks,
   }
 }

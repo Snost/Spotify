@@ -58,7 +58,7 @@ export default function HomePage() {
             <div className="space-y-7">
               {forYou.length > 0 ? (
                 <SectionBlock className="mt-0">
-                  <SectionHeader title="Плейлісти для вас" href="/playlists" />
+                  <SectionHeader title="Плейлісти для вас" href="/playlist" />
                   <GridCards items={forYou} hrefPrefix="/playlist" />
                 </SectionBlock>
               ) : null}
@@ -76,7 +76,7 @@ export default function HomePage() {
 
             {forYou.length > 0 ? (
               <SectionBlock>
-                <SectionHeader title="Плейлісти для вас" href="/playlists" />
+                <SectionHeader title="Плейлісти для вас" href="/playlist" />
                 <GridCards items={forYou} hrefPrefix="/playlist" />
               </SectionBlock>
             ) : null}

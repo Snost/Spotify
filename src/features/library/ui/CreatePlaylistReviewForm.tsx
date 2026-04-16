@@ -48,7 +48,7 @@ export function CreatePlaylistReviewForm() {
     }
 
     try {
-      const result = await createPlaylistMutation.mutateAsync({
+      await createPlaylistMutation.mutateAsync({
         name: name.trim() || 'Без назви',
         description: description.trim() || null,
         isPublic: visibility === 'public',
@@ -58,7 +58,7 @@ export function CreatePlaylistReviewForm() {
       })
 
       reset()
-      router.replace(`/playlist/${result.playlistId}`)
+      router.replace('/library')
     } catch (error) {
       console.error('Failed to create playlist', error)
     }
@@ -127,7 +127,6 @@ export function CreatePlaylistReviewForm() {
 
       <CreatePlaylistBottomAction className="pt-[40px]" bottomOffset={34}>
         <CreatePlaylistNextButton
-          href="/library"
           disabled={createPlaylistMutation.isPending}
           label={
             createPlaylistMutation.isPending
